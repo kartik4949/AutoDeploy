@@ -45,7 +45,7 @@ model = model_loader.load()
 infer = InfereBuilder(user_config, model)
 
 
-@app.get('/model/', response_model=output_model_schema.ModelOutSchema)
+@app.get('/model/', response_model=output_model_schema.UserOutputSchema)
 async def model_details():
   try:
     out_response = {'model': user_config.model.model_name,
