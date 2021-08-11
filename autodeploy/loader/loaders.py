@@ -1,5 +1,4 @@
 import pickle
-import joblib
 
 class PickleLoader:
   def __init__(self, model_path):

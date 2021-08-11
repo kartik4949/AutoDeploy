@@ -1,6 +1,6 @@
 """ A simple deploy service class  """
-import logging
 import asyncio
+import traceback
 
 import numpy as np
 import uvicorn
@@ -13,6 +13,7 @@ from handlers.handlers import Handler
 from schema import schema
 from loader import ModelLoader
 from service.builder import InfereBuilder
+from logger import AppLogger 
 
 app = FastAPI()
 Instrumentator().instrument(app).expose(app)
@@ -26,8 +27,11 @@ parser.add_argument("-c", "--config", default='../configs/config.yaml', type=str
                     help="mode can be PRODUCTION or DEBUG")
 
 args = parser.parse_args()
-if args.mode == 'debug':
-  print('*****************Running Application in \'DEBUG\' mode.*****************')
+
+applogger = AppLogger(__name__)
+logger = applogger.get_logger()
+
+logger.debug('*****************Running Application in \'DEBUG\' mode.*****************')
 
 user_config = Config(args.config).get_config()
 handler = Handler()
@@ -47,15 +51,27 @@ infer = InfereBuilder(user_config, model)
 
 @app.get('/model') 
 async def model_details():
-  out_response = {'model': user_config.model.model_name,
-                    'version': user_config.model.version}
+  logger.debug('model detail request incomming.')
+  try:
+    out_response = {'model': user_config.model.model_name,
+                      'version': user_config.model.version}
+  except KeyError as e:
+    logger.error('please define model name and version in config.')
+  except:
+    logger.error("uncaught exception: %s", traceback.format_exc())
   return out_response
 
 
 @app.post(f'/{user_config.model.endpoint}', response_model=output_model_schema.UserOutputSchema)
 async def structured_server(payload: input_model_schema.UserInputSchema):
-  logging.debug("request incoming!!")
-  model_output = infer.get_inference(payload)
+  logger.debug('model predict request incoming.')
+  try:
+    model_output = infer.get_inference(payload)
+  except:
+    logger.error('uncaught exception: %s', traceback.format_exc())
+  else:
+    logger.debug('model predict successfull.')
+
   out_response = {'out': model_output[0],
                   'probablity': model_output[1], 'status': 200}
   return out_response
