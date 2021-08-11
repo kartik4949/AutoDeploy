@@ -1,4 +1,4 @@
-from pydantic import BaseModel, create_model
+from pydantic import create_model
 from utils import utils
 
 
@@ -16,10 +16,3 @@ class UserOut:
     self._model_attr = utils.annotator(dict(config.out_schema))
     self.UserOutputSchema = create_model(
         'UserOutputSchema', **self._model_attr)
-
-
-class ModelDetailSchema:
-  def __init__(self, config, *args, **kwargs):
-    self._model_attr = utils.annotator(dict(config.out_schema))
-    self.ModelDetailSchema = create_model(
-        'ModelDetailSchema', **self._model_attr)

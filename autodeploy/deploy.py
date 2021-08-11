@@ -45,21 +45,16 @@ model = model_loader.load()
 infer = InfereBuilder(user_config, model)
 
 
-@app.get('/model/', response_model=output_model_schema.UserOutputSchema)
+@app.get('/model') 
 async def model_details():
-  try:
-    out_response = {'model': user_config.model.model_name,
+  out_response = {'model': user_config.model.model_name,
                     'version': user_config.model.version}
-  except Exception as e:
-    logging.error(e)
-    raise HttpException(e)
   return out_response
 
 
 @app.post(f'/{user_config.model.endpoint}', response_model=output_model_schema.UserOutputSchema)
 async def structured_server(payload: input_model_schema.UserInputSchema):
   logging.debug("request incoming!!")
-  await asyncio.sleep(5)
   model_output = infer.get_inference(payload)
   out_response = {'out': model_output[0],
                   'probablity': model_output[1], 'status': 200}
