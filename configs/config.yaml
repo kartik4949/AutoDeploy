@@ -1,0 +1,21 @@
+model:
+        model_type: 'sklearn'
+        model_path: './model.pkl'
+        model_file_type: 'pickle'
+        version: '1.0.0'
+        model_name: 'scikit-learn iris model'
+        endpoint: 'predict'
+input_schema:
+        petal_length: 'float'
+        sepal_length: 'float'
+        sepal_width: 'float'
+        petal_width: 'float'
+out_schema:
+        out: 'int'
+        probablity: 'float'
+        status: 'int'
+server:
+        port: 8000
+monitor:
+        petal_lenthg: ['average', 10]
+        x2: ['99th_percentile', 30]
