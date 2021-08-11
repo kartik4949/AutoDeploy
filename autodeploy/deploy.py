@@ -33,7 +33,7 @@ user_config = Config(args.config).get_config()
 handler = Handler()
 handler.create_handlers(app)
 
-input_model_schema = schema.UserInput(
+input_model_schema = schema.UserIn(
     user_config)
 output_model_schema = schema.UserOut(
     user_config)
