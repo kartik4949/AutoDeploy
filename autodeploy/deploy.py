@@ -9,7 +9,7 @@ from prometheus_fastapi_instrumentator import Instrumentator
 from fastapi import FastAPI
 
 from config.config import Config
-from handlers.handlers import Handler
+from handlers import Handler, ModelException
 from schema import schema
 from loader import ModelLoader
 from service.builder import InfereBuilder
@@ -34,7 +34,9 @@ logger = applogger.get_logger()
 logger.debug('*****************Running Application in \'DEBUG\' mode.*****************')
 
 user_config = Config(args.config).get_config()
+
 handler = Handler()
+handler.overide_handlers(app)
 handler.create_handlers(app)
 
 input_model_schema = schema.UserIn(
@@ -69,6 +71,7 @@ async def structured_server(payload: input_model_schema.UserInputSchema):
     model_output = infer.get_inference(payload)
   except:
     logger.error('uncaught exception: %s', traceback.format_exc())
+    raise ModelException(name='structured_server')
   else:
     logger.debug('model predict successfull.')
 

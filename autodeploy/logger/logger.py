@@ -11,4 +11,5 @@ class AppLogger:
   def get_logger(self) :
     # get root logger
     logger = logging.getLogger(self.__file_name)
+    breakpoint()
     return logger

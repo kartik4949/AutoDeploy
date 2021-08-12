@@ -1,3 +1,4 @@
+""" Inference model classes """
 import sklearn
 import numpy as np
 from fastapi.exceptions import RequestValidationError
