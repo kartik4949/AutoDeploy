@@ -2,6 +2,9 @@
 import random
 
 from logger import AppLogger 
+from database import database
+
+# datatypes mapper dictionary.
 DATATYPES = {'string': str, 'int': int, 'float': float, 'bool': bool}
 
 logger = AppLogger(__name__).get_logger()
@@ -33,4 +36,19 @@ def generate_random_from_schema(schema):
     __dict[k] = value
   return __dict
 
+def store_request(db, db_item):
+    """ a helper function to store 
+        request in database.
+    """
+    db.add(db_item)
+    db.commit()
+    db.refresh(db_item)
+    return db_item
+
+def get_db():
+  db = database.SessionLocal()
+  try:
+    yield db
+  finally:
+    db.close()
 

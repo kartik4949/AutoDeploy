@@ -17,5 +17,4 @@ out_schema:
 server:
         port: 8000
 monitor:
-        petal_lenthg: ['average', 10]
-        x2: ['99th_percentile', 30]
+        name: 'ADWIN'
