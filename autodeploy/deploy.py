@@ -1,11 +1,13 @@
-""" A simple deploy service class  """
+""" A simple deploy service utility."""
 import traceback
 import argparse
 import requests
-from typing import List
+from typing import List, Dict, Tuple, Any
+import json
 from datetime import datetime
 
 import uvicorn
+import pika
 import numpy as np
 from prometheus_fastapi_instrumentator import Instrumentator
 from fastapi import Depends, FastAPI, Request, HTTPException
@@ -15,103 +17,138 @@ from config.config import Config
 from utils import utils
 from handlers import Handler, ModelException
 from schema import schema
-from loader import ModelLoader
-from service.builder import InfereBuilder
-from logger import AppLogger 
-from database import database, models
+from logger import AppLogger
+from routers.predict import PredictRouter
+from routers.predict import router as prediction_router
+from routers.model import ModelDetailRouter
+from routers.model import router as model_detial_router
+from base import BaseDriverService
 
 
-
-app = FastAPI()
-Instrumentator().instrument(app).expose(app)
-
+# ArgumentParser to get commandline args.
 parser = argparse.ArgumentParser()
-
-
 parser.add_argument("-o", "--mode", default='debug', type=str,
                     help="model for running deployment ,mode can be PRODUCTION or DEBUG")
 parser.add_argument("-c", "--config", default='../configs/config.yaml', type=str,
                     help="a configuration yaml file path.")
-
 args = parser.parse_args()
 
-# __main__ (root) logger instance construction. 
+# __main__ (root) logger instance construction.
 applogger = AppLogger(__name__)
 logger = applogger.get_logger()
 
-# create database connection.
-models.Base.metadata.create_all(bind=database.engine)
+# create fastapi application
+app = FastAPI()
 
-# user config for configuring model deployment.
-user_config = Config(args.config).get_config()
-
-# create exception handlers for fastapi.
-handler = Handler()
-handler.overide_handlers(app)
-handler.create_handlers(app)
-
-# create input and output schema for model endpoint api.
-input_model_schema = schema.UserIn(
-    user_config)
-output_model_schema = schema.UserOut(
-    user_config)
-
-# create model loader instance.
-model_loader = ModelLoader(
-    user_config.model.model_path, user_config.model.model_file_type)
-model = model_loader.load()
-
-# inference model builder.
-infer = InfereBuilder(user_config, model)
-
-logger.debug('*****************Running Application in \'DEBUG\' mode.*****************')
-
-@app.on_event('startup')
-async def startup():
-    logger.info('Connected to server...!!')
 
 @app.middleware('http')
 async def log_incoming_requests(request: Request, call_next):
-  logger.info(f'incoming payload to server.')  
+  '''
+  Middleware to log incoming requests to server.
+
+  Args:
+    request (Request): incoming request payload.
+    call_next: function to executing the request.
+  Returns:
+    response (Dict): reponse from the executing fxn.
+  '''
+  logger.info(f'incoming payload to server. {request}')
   response = await call_next(request)
   return response
 
-@app.get('/model') 
-async def model_details():
-  logger.debug('model detail request incomming.')
-  try:
-    out_response = {'model': user_config.model.model_name,
-                      'version': user_config.model.version}
-  except KeyError as e:
-    logger.error('Please define model name and version in config.')
-  except:
-    logger.error("Uncaught exception: %s", traceback.format_exc())
-  return out_response
 
-@app.post(f'/{user_config.model.endpoint}', response_model=output_model_schema.UserOutputSchema)
-async def structured_server(payload: input_model_schema.UserInputSchema, db: Session = Depends(utils.get_db)):
-  try:
-    # model inference/prediction.
-    model_output = infer.get_inference(payload)
-  except:
-    logger.error('uncaught exception: %s', traceback.format_exc())
-    raise ModelException(name='structured_server')
-  else:
-    logger.debug('model predict successfull.')
-  
-  # store request data and model prediction in database.
-  _time_stamp = datetime.now()
-  _request_store = {'time_stamp': str(_time_stamp), 'prediction': model_output[0], 'is_drift': False} 
-  _request_store.update(dict(payload))
-  _request_store = models.Requests(**dict(_request_store))
-  utils.store_request(db,_request_store) 
-  
-  # build output response json.
-  out_response = {'out': model_output[0],
-                  'probablity': model_output[1], 'status': 200}
-  return out_response
+class DeployDriver(BaseDriverService):
+  '''
+  DeployDriver class for creating deploy driver which setups
+  , registers routers with `app` and executes the server.
+
+  This class is the main driver class responsible for creating
+  and setupping the environment.
+  Args:
+    config (str): a config path.
+
+  Note:
+    `setup` method should get called before `register_routers`.
+
+  '''
+
+  def __init__(self, config) -> None:
+    # user config for configuring model deployment.
+    self.user_config = Config(args.config).get_config()
+
+  @staticmethod
+  def _handler_setup():
+    '''
+    a simple helper function to overide handlers
+    '''
+    # create exception handlers for fastapi.
+    handler = Handler()
+    handler.overide_handlers(app)
+    handler.create_handlers(app)
+
+  def _app_include(self, routers):
+    '''
+    a simple helper function to register routers
+    with the fastapi `app`.
+
+    '''
+    for route in routers:
+      app.include_router(route)
+
+  def _setup_schema(self) -> Tuple[Any, Any]:
+    '''
+    a function to setup input and output schema for
+    server.
+
+    '''
+    # create input and output schema for model endpoint api.
+    input_model_schema = schema.UserIn(
+        self.user_config)
+    output_model_schema = schema.UserOut(
+        self.user_config)
+    return (input_model_schema, output_model_schema)
+
+  def setup(self) -> None:
+    '''
+    Main setup function responsible for setting up
+    the environment for model deployment.
+    setups prediction and model routers.
+
+    Setups Prometheus instrumentor
+    '''
+    # expose prometheus data to /metrics
+    Instrumentator().instrument(app).expose(app)
+    _schemas = self._setup_schema()
+
+    predictrouter = PredictRouter(self.user_config)
+    predictrouter.setup(_schemas)
+    predictrouter.register_router()
+
+    modeldetailrouter = ModelDetailRouter(self.user_config)
+    modeldetailrouter.register_router()
+
+  def register_routers(self):
+    '''
+    a helper function to register routers in the app.
+    '''
+    self._app_include([prediction_router, model_detial_router])
+
+  def run(self):
+    '''
+    The main executing function which runs the uvicorn server
+    with the app instance and user configuration.
+    '''
+    # run uvicorn server.
+    global app
+    uvicorn.run(app, port=self.user_config.server.port)
+
+
+def main():
+  deploydriver = DeployDriver(args.config)
+  deploydriver.setup()
+  deploydriver.register_routers()
+  deploydriver.run()
+
 
 if __name__ == "__main__":
-
-  # run uvicorn server.
-  uvicorn.run(app, port=user_config.server.port)
+  main()

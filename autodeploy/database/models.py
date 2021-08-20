@@ -9,7 +9,7 @@ from .database import Base
 from utils import utils
 from config import Config
 
-SQLTYPE_MAPPER  = {'float': Float, 'str': String, 'integer': Integer, 'bool': Boolean}
+SQLTYPE_MAPPER  = {'float': Float, 'str': String, 'int': Integer, 'bool': Boolean}
 config = Config('../configs/config.yaml').get_config()
 
 def set_dynamic_inputs(cls):

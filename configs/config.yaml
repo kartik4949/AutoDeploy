@@ -1,15 +1,13 @@
 model:
         model_type: 'sklearn'
-        model_path: './model.pkl'
+        model_path: './logistic_regression_model.pkl'
         model_file_type: 'pickle'
         version: '1.0.0'
         model_name: 'scikit-learn iris model'
         endpoint: 'predict'
 input_schema:
-        petal_length: 'float'
-        sepal_length: 'float'
-        sepal_width: 'float'
-        petal_width: 'float'
+        age: 'int'
+        sex: 'int'
 out_schema:
         out: 'int'
         probablity: 'float'
@@ -17,4 +15,5 @@ out_schema:
 server:
         port: 8000
 monitor:
-        name: 'ADWIN'
+        name: 'KSDrift'
+        reference_data: './reference_data.npy'

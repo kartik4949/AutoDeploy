@@ -1,0 +1,18 @@
+""" a simple model data drift detection monitering utilities. """
+from typing import Any, Dict
+
+import numpy as np
+
+from config import Config
+from monitor.drift_detection import DriftDetectionAlgorithmsMixin
+
+class Monitor(DriftDetectionAlgorithmsMixin):
+  def __init__(self, config: Config, reference_data: np.ndarray,*args, **kwargs) -> None:
+    super(Monitor, self).__init__(*args, *kwargs)
+    self.config = config
+    _data_drift_instance = self.get_drift(config.monitor.name)
+    self._data_drift_instance = _data_drift_instance(reference_data)
+
+  def get_change(self, x: np.ndarray) -> Dict:
+    _status = self._data_drift_instance.predict(x)
+    return _status
