@@ -23,7 +23,7 @@ logger = applogger.get_logger()
 ''' A simple Monitor Driver class. '''
 
 
-class MonitorDriver:
+class MonitorDriver(BaseMonitorService):
   '''
   A simple Monitor Driver class for creating monitoring model
   and listening to rabbitmq queue i.e Monitor.

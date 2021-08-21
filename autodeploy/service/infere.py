@@ -16,9 +16,7 @@ class SkLearnInfere(BaseInfere):
     self.model = model
 
   def infere(self, input):
-    input = [v for k, v in input]
-    assert type(input) in [np.ndarray, list], RequestValidationError(
-        'Model input are not valid!')
+    assert type(input) in [np.ndarray, list], 'Model input are not valid!'
     class_probablities = self.model.predict_proba([input])
     out_class = np.argmax(class_probablities)
     return class_probablities[0][out_class], out_class

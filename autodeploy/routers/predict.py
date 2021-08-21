@@ -22,6 +22,7 @@ from loader import ModelLoader
 from service.builder import InfereBuilder
 from logger import AppLogger
 from database import database, models
+from dependencies import preprocess
 
 from logger import AppLogger
 
@@ -37,6 +38,7 @@ class PredictRouter:
   def __init__(self, config: Config) -> None:
     # user config for configuring model deployment.
     self.user_config = config
+    self.preprocess_dependency = preprocess.PreprocessDependency(config)
 
   def setupRabbitMq(self, ):
 
@@ -66,17 +68,24 @@ class PredictRouter:
     # setupRabbitMq
     self.setupRabbitMq()
 
+    # pick one function to register
+    self._dependency_fxn = list(
+        self.preprocess_dependency._get_fxn().values())[0]
+
   def register_router(self):
     user_config = self.user_config
     input_model_schema = self.input_model_schema
     output_model_schema = self.output_model_schema
+    preprocess_fxn = self._dependency_fxn
 
     @router.post(f'/{user_config.model.endpoint}', response_model=output_model_schema.UserOutputSchema)
     async def structured_server(payload: input_model_schema.UserInputSchema, db: Session = Depends(utils.get_db)):
       nonlocal self
       try:
+        _input_array = [v for k, v in payload]
+        _input_array = preprocess_fxn(_input_array)
         # model inference/prediction.
-        model_output = self.__inference_executor.get_inference(payload)
+        model_output = self.__inference_executor.get_inference(_input_array)
       except:
         logger.error('uncaught exception: %s', traceback.format_exc())
         raise ModelException(name='structured_server')
