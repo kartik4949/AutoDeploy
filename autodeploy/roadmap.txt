@@ -1,7 +1,0 @@
-basic setup - (inference)  - done
-basic setup - monitoring(default), logging done
-preprocessing specification.
-basic setup - save data in mongoDB(monitoring), loadtesting (locust) (done).
-support docker deployment, and deployment endpoint.
-make everything configurable.
-code clean up, doc string, re-structuring.
