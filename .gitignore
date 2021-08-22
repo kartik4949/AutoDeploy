@@ -132,3 +132,5 @@ dmypy.json
 
 *.db
 .vim
+
+.DS_Store
