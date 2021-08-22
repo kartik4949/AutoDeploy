@@ -38,7 +38,11 @@ class PredictRouter:
   def __init__(self, config: Config) -> None:
     # user config for configuring model deployment.
     self.user_config = config
-    self.preprocess_dependency = preprocess.PreprocessDependency(config)
+
+    self.preprocess_dependency = None
+    if config.get('preprocess', None):
+      self.preprocess_dependency = preprocess.PreprocessDependency(config)
+    self._dependency_fxn = None
 
   def setupRabbitMq(self, ):
 
@@ -69,8 +73,9 @@ class PredictRouter:
     self.setupRabbitMq()
 
     # pick one function to register
-    self._dependency_fxn = list(
-        self.preprocess_dependency._get_fxn().values())[0]
+    if self.preprocess_dependency:
+      self._dependency_fxn = list(
+          self.preprocess_dependency._get_fxn().values())[0]
 
   def register_router(self):
     user_config = self.user_config
@@ -83,9 +88,12 @@ class PredictRouter:
       nonlocal self
       try:
         _input_array = [v for k, v in payload]
-        _input_array = preprocess_fxn(_input_array)
+        if preprocess_fxn:
+          _input_array = preprocess_fxn(_input_array)
+
         # model inference/prediction.
-        model_output = self.__inference_executor.get_inference(_input_array)
+        model_output, model_detail = self.__inference_executor.get_inference(
+            _input_array)
       except:
         logger.error('uncaught exception: %s', traceback.format_exc())
         raise ModelException(name='structured_server')

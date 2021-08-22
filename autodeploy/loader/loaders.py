@@ -1,5 +1,9 @@
 import pickle
 
+from logger import AppLogger
+
+logger = AppLogger(__name__).get_logger()
+
 
 class PickleLoader:
   def __init__(self, model_path, multi_model = False):

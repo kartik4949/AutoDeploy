@@ -116,6 +116,9 @@ class DeployDriver(BaseDriverService):
 
     Setups Prometheus instrumentor
     '''
+    if isinstance(self.user_config.model_path, list):
+      logger.info('multi model deployment started...')
+
     # expose prometheus data to /metrics
     Instrumentator().instrument(app).expose(app)
     _schemas = self._setup_schema()

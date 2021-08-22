@@ -3,11 +3,11 @@ import sklearn
 import numpy as np
 from fastapi.exceptions import RequestValidationError
 
-from register.register import INFERE
+from register.register import INFER
 from base import BaseInfere
 
 
-@INFERE.register_module(name='sklearn')
+@INFER.register_module(name='sklearn')
 class SkLearnInfere(BaseInfere):
   """ a SKLearn  inference class. """
 

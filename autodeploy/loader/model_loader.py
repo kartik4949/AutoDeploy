@@ -22,6 +22,6 @@ class ModelLoader:
         return loader.load()
 
     else:
-      logger.debug('model type is not allowed')
+      logger.error('model type is not allowed')
       raise ValueError('Model type is not supported yet!!!')
-    logger.debug('model loaded successfully!')
+    logger.info('model loaded successfully!')
