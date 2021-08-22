@@ -2,7 +2,7 @@ model:
         model_type: 'sklearn'
         model_path: './logistic_regression_model.pkl'
         model_file_type: 'pickle'
-        version: '1.0.0'
+        version: ['2.0.0', '1.0.0']
         model_name: 'scikit-learn iris model'
         endpoint: 'predict'
 input_schema:

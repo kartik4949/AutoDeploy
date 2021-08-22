@@ -1,4 +1,4 @@
 from utils.registry import Registry
 
-INFERE = Registry('Inference')
+INFER = Registry('Inference')
 PREPROCESS = Registry('Preprocess')
