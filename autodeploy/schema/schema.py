@@ -8,7 +8,8 @@ from utils import utils
 class UserIn:
   def __init__(self, config, *args, **kwargs):
     self._model_attr = utils.annotator(dict(config.input_schema))
-    self.UserInputSchema = create_model('UserInputSchema', **self._model_attr)
+    self.UserInputSchema = create_model(
+        'UserInputSchema', **self._model_attr)
 
 
 class UserOut:

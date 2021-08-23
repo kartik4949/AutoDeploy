@@ -17,7 +17,7 @@ class InfereBuilder:
   fxn with appropiate class from configuration file.
 
   Inference builder class builds request AB testing routing
-  to route to correct model for inference according to the 
+  to route to correct model for inference according to the
   ab split provided in model configuration.
 
   Args:
@@ -49,7 +49,7 @@ class InfereBuilder:
 
     '''
     if not self.config.model.get('ab_split', None):
-      return [1/self.num_models]*self.num_models
+      return [1 / self.num_models] * self.num_models
     return self.config.model.ab_split
 
   def _get_model_id_from_split(self):
@@ -57,7 +57,8 @@ class InfereBuilder:
     a helper function to get model id to route request.
 
     '''
-    return random.choices(np.arange(self.num_models), weights=self._get_split())[0]
+    return random.choices(np.arange(self.num_models),
+                          weights=self._get_split())[0]
 
   def get_inference(self, input):
     '''
@@ -69,4 +70,5 @@ class InfereBuilder:
     model_infere_detail = {'model': 'primary' if _idx ==
                            0 else 'non_primary', 'id': _idx, 'version': self._version}
     logger.info(model_infere_detail)
-    return self._infere_class_instances[_idx].infere(input), model_infere_detail
+    return self._infere_class_instances[_idx].infere(
+        input), model_infere_detail

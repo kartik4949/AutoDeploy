@@ -1,13 +1,14 @@
 """ a simple utilities functions. """
 import random
 
-from logger import AppLogger 
+from logger import AppLogger
 from database import database
 
 # datatypes mapper dictionary.
 DATATYPES = {'string': str, 'int': int, 'float': float, 'bool': bool}
 
 logger = AppLogger(__name__).get_logger()
+
 
 def annotator(_dict):
   __dict = {}
@@ -19,11 +20,13 @@ def annotator(_dict):
     __dict[key] = (DATATYPES[value], ...)
   return __dict
 
+
 def generate_random_number(type=float):
   if isinstance(type, float):
-    #TODO: remove hardcoded values
+    # TODO: remove hardcoded values
     return random.uniform(0.0, 10.0)
   return random.randint(0, 10)
+
 
 def generate_random_from_schema(schema):
   __dict = {}
@@ -36,14 +39,16 @@ def generate_random_from_schema(schema):
     __dict[k] = value
   return __dict
 
+
 def store_request(db, db_item):
-    """ a helper function to store 
-        request in database.
-    """
-    db.add(db_item)
-    db.commit()
-    db.refresh(db_item)
-    return db_item
+  """ a helper function to store
+      request in database.
+  """
+  db.add(db_item)
+  db.commit()
+  db.refresh(db_item)
+  return db_item
+
 
 def get_db():
   db = database.SessionLocal()
@@ -51,4 +56,3 @@ def get_db():
     yield db
   finally:
     db.close()
-

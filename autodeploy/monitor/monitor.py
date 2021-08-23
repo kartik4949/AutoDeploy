@@ -8,7 +8,8 @@ from monitor.drift_detection import DriftDetectionAlgorithmsMixin
 
 
 class Monitor(DriftDetectionAlgorithmsMixin):
-  def __init__(self, config: Config, drift_name: Text, reference_data: np.ndarray, *args, **kwargs) -> None:
+  def __init__(self, config: Config, drift_name: Text,
+               reference_data: np.ndarray, *args, **kwargs) -> None:
     super(Monitor, self).__init__(*args, *kwargs)
     self.config = config
     _data_drift_instance = self.get_drift(drift_name)

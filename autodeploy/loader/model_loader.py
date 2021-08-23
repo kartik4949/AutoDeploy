@@ -6,6 +6,7 @@ ALLOWED_MODEL_TYPES = ['pickle', 'hdf5', 'joblib']
 
 logger = AppLogger(__name__).get_logger()
 
+
 class ModelLoader:
   def __init__(self, model_path, model_type):
     self.model_path = model_path
@@ -18,7 +19,8 @@ class ModelLoader:
     logger.info('model loading started')
     if self.model_type in ALLOWED_MODEL_TYPES:
       if self.model_type == 'pickle':
-        loader = PickleLoader(self.model_path, multi_model=self.multi_model)
+        loader = PickleLoader(
+            self.model_path, multi_model=self.multi_model)
         return loader.load()
 
     else:

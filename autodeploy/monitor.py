@@ -45,7 +45,7 @@ class MonitorDriver(BaseMonitorService):
   standard for passing business messages between applications or
   organizations.  It connects systems, feeds business processes
   with the information they need and reliably transmits onward the
-  instructions that achieve their goals. 
+  instructions that achieve their goals.
 
   Ref: [https://pika.readthedocs.io/en/stable/]
   Pika:
@@ -65,6 +65,7 @@ class MonitorDriver(BaseMonitorService):
     self.host = 'localhost'
     self.queue = 'monitor'
     self.drift_detection = None
+    self.model_metric_port = 8001
 
   def _get_array(self, body: Dict) -> List:
     '''
@@ -90,7 +91,8 @@ class MonitorDriver(BaseMonitorService):
 
     return [input]
 
-  def _callback(self, ch: Any, method: Any, properties: Any, body: Dict) -> None:
+  def _callback(self, ch: Any, method: Any,
+                properties: Any, body: Dict) -> None:
     '''
     a simple callback function attached for post processing on
     incoming message body.
@@ -109,10 +111,14 @@ class MonitorDriver(BaseMonitorService):
     logger.info(
         f'Data Drift Detection {self.drift_detection} detected: {status}')
 
+    # TODO : delete it
     print(
         f'Data Drift Detection {self.drift_detection} detected: {status}')
+
+    # expose prometheus_metric metrics
     status = self.prometheus_metric.convert_str(status)
     self.prometheus_metric.data_drift.info(status)
+    self.prometheus_metric.monitor_state.state('up')
 
   def _load_monitor_algorithm(self) -> Optional[Union[Monitor, None]]:
     reference_data = None
@@ -130,8 +136,7 @@ class MonitorDriver(BaseMonitorService):
 
   def prometheus_server(self) -> None:
     # Start up the server to expose the metrics.
-    # TODO: remove hardcoded port
-    start_http_server(8001)
+    start_http_server(self.model_metric_port)
 
   def setup(self, ) -> None:
     '''
@@ -142,9 +147,8 @@ class MonitorDriver(BaseMonitorService):
     and define safe connection to rabbitmq.
 
     '''
-    metrics = dict(self.config.monitor.metrics)
-    self.prometheus_metric = PrometheusModelMetric(self.config, metrics)
-    self.prometheus_metric.set_metrics_attributes()
+    self.prometheus_metric = PrometheusModelMetric(self.config)
+    self.prometheus_metric.setup()
 
     monitor = self._load_monitor_algorithm()
     self.monitor = monitor
@@ -153,8 +157,10 @@ class MonitorDriver(BaseMonitorService):
       connection = pika.BlockingConnection(
           pika.ConnectionParameters(host=self.host))
     except Exception as exc:
-      logger.critical('Error occured while creating connnection in rabbitmq')
-      raise Exception('Error occured while creating connnection in rabbitmq')
+      logger.critical(
+          'Error occured while creating connnection in rabbitmq')
+      raise Exception(
+          'Error occured while creating connnection in rabbitmq')
     channel = connection.channel()
 
     channel.queue_declare(queue=self.queue)
@@ -164,6 +170,14 @@ class MonitorDriver(BaseMonitorService):
     self.channel = channel
 
     self.prometheus_server()
+
+    # expose model deployment name.
+    self.prometheus_metric.model_deployment_name.info(
+        {'model_name': self.config.model.get('name', 'N/A')})
+
+    # expose model port name.
+    self.prometheus_metric.monitor_port.info(
+        {'model_monitoring_port': str(self.model_metric_port)})
 
   def __call__(self) -> None:
     '''
@@ -222,8 +236,10 @@ class Database:
       db.commit()
       db.refresh(db_item)
     except Exception as exc:
-      logger.error('Some error occured while storing request in database.')
-      raise Exception('Some error occured while storing request in database.')
+      logger.error(
+          'Some error occured while storing request in database.')
+      raise Exception(
+          'Some error occured while storing request in database.')
     return db_item
 
   async def get_db(self) -> None:

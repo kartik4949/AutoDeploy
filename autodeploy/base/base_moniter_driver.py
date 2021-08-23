@@ -1,10 +1,11 @@
 ''' Base class for monitor driver service. '''
 from abc import ABC, abstractmethod
 
+
 class BaseMonitorService(ABC):
   def __init__(self, *args, **kwargs):
     ...
-  
+
   @abstractmethod
   def setup(self, *args, **kwargs):
     '''
