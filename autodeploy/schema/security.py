@@ -1,5 +1,9 @@
 from typing import Optional
+
 from pydantic import BaseModel
+
+
+""" Simple security user schema. """
 
 class User(BaseModel):
   username: str

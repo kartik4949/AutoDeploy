@@ -5,7 +5,7 @@ from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
 
-from security.model import User, UserInDB
+from schema.security import User, UserInDB
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 

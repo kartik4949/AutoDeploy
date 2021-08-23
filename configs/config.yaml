@@ -1,6 +1,6 @@
 model:
         model_type: 'sklearn'
-        model_path: '../../logistic_regression_model.pkl'
+        model_path: '../logistic_regression_model.pkl'
         model_file_type: 'pickle'
         version: '1.0.0'
         model_name: 'scikit-learn iris model'
