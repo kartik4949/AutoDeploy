@@ -2,7 +2,7 @@
 import json
 import os
 import sys
-from typing import Any, List, Dict
+from typing import Any, List, Dict, Optional, Union
 import functools
 
 import pika
@@ -10,12 +10,15 @@ import uvicorn
 import numpy as np
 from fastapi import FastAPI
 from sqlalchemy.orm import Session
+from prometheus_client import start_http_server
 
 from base import BaseMonitorService
 from config import Config
 from database import database, models
 from monitor import Monitor
 from logger import AppLogger
+from monitor import PrometheusModelMetric
+from monitor.drift_detection import drift_detection_algorithms
 
 applogger = AppLogger(__name__)
 logger = applogger.get_logger()
@@ -61,6 +64,7 @@ class MonitorDriver(BaseMonitorService):
     self.config = Config(config).get_config()
     self.host = 'localhost'
     self.queue = 'monitor'
+    self.drift_detection = None
 
   def _get_array(self, body: Dict) -> List:
     '''
@@ -103,15 +107,31 @@ class MonitorDriver(BaseMonitorService):
     input = np.asarray(input)
     status = self.monitor.get_change(input)
     logger.info(
-        f'Data Drift Detection {self.config.monitor.name} detected: {status}')
+        f'Data Drift Detection {self.drift_detection} detected: {status}')
 
     print(
-        f'Data Drift Detection {self.config.monitor.name} detected: {status}')
+        f'Data Drift Detection {self.drift_detection} detected: {status}')
+    status = self.prometheus_metric.convert_str(status)
+    self.prometheus_metric.data_drift.info(status)
 
-  def _load_monitor_algorithm(self) -> Monitor:
-    reference_data = np.load(self.config.monitor.reference_data)
-    monitor = Monitor(self.config, reference_data)
+  def _load_monitor_algorithm(self) -> Optional[Union[Monitor, None]]:
+    reference_data = None
+    monitor = None
+    drift_name = None
+    for k, v in self.config.monitor.metrics.items():
+      if v['name'] in drift_detection_algorithms:
+        reference_data = v['reference_data']
+        drift_name = v['name']
+    if reference_data:
+      reference_data = np.load(reference_data)
+      monitor = Monitor(self.config, drift_name, reference_data)
+    self.drift_detection = drift_name
     return monitor
+
+  def prometheus_server(self) -> None:
+    # Start up the server to expose the metrics.
+    # TODO: remove hardcoded port
+    start_http_server(8001)
 
   def setup(self, ) -> None:
     '''
@@ -122,6 +142,10 @@ class MonitorDriver(BaseMonitorService):
     and define safe connection to rabbitmq.
 
     '''
+    metrics = dict(self.config.monitor.metrics)
+    self.prometheus_metric = PrometheusModelMetric(self.config, metrics)
+    self.prometheus_metric.set_metrics_attributes()
+
     monitor = self._load_monitor_algorithm()
     self.monitor = monitor
 
@@ -138,6 +162,8 @@ class MonitorDriver(BaseMonitorService):
     channel.basic_consume(
         queue=self.queue, on_message_callback=self._callback, auto_ack=True)
     self.channel = channel
+
+    self.prometheus_server()
 
   def __call__(self) -> None:
     '''

@@ -69,4 +69,4 @@ class InfereBuilder:
     model_infere_detail = {'model': 'primary' if _idx ==
                            0 else 'non_primary', 'id': _idx, 'version': self._version}
     logger.info(model_infere_detail)
-    return self._infere_class_instances[_idx].infere(input)
+    return self._infere_class_instances[_idx].infere(input), model_infere_detail
