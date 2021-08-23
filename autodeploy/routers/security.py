@@ -1,10 +1,10 @@
 
-from pydantic import BaseModel
 from typing import Optional
 
 from fastapi import APIRouter
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from pydantic import BaseModel
 
 from security.scheme import oauth2_scheme, fake_users_db, get_user, fake_decode_token, fake_hash_password
 from security.model import User, UserInDB

@@ -145,7 +145,6 @@ class DeployDriver(BaseDriverService):
 
 
 def main():
-  print(args.config)
   deploydriver = DeployDriver(args.config)
   deploydriver.setup()
   deploydriver.register_routers()
