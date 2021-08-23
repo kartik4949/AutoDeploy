@@ -6,7 +6,7 @@ logger = AppLogger(__name__).get_logger()
 
 
 class PickleLoader:
-  def __init__(self, model_path, multi_model = False):
+  def __init__(self, model_path, multi_model=False):
     self.model_path = model_path
     self.multi_model = multi_model
 

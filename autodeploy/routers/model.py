@@ -30,6 +30,6 @@ class ModelDetailRouter:
                         'version': self.user_config.model.version}
       except KeyError as e:
         logger.error('Please define model name and version in config.')
-      except:
+      except BaseException:
         logger.error("Uncaught exception: %s", traceback.format_exc())
       return out_response

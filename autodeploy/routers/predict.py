@@ -41,7 +41,8 @@ class PredictRouter:
 
     self.preprocess_dependency = None
     if config.get('preprocess', None):
-      self.preprocess_dependency = preprocess.PreprocessDependency(config)
+      self.preprocess_dependency = preprocess.PreprocessDependency(
+          config)
     self._dependency_fxn = None
 
   def setupRabbitMq(self, ):
@@ -83,7 +84,8 @@ class PredictRouter:
     output_model_schema = self.output_model_schema
     preprocess_fxn = self._dependency_fxn
 
-    @router.post(f'/{user_config.model.endpoint}', response_model=output_model_schema.UserOutputSchema)
+    @router.post(f'/{user_config.model.endpoint}',
+                 response_model=output_model_schema.UserOutputSchema)
     async def structured_server(payload: input_model_schema.UserInputSchema, db: Session = Depends(utils.get_db)):
       nonlocal self
       try:
@@ -94,7 +96,7 @@ class PredictRouter:
         # model inference/prediction.
         model_output, model_detail = self.__inference_executor.get_inference(
             _input_array)
-      except:
+      except BaseException:
         logger.error('uncaught exception: %s', traceback.format_exc())
         raise ModelException(name='structured_server')
       else:
