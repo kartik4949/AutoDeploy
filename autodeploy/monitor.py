@@ -251,6 +251,6 @@ class Database:
 
 
 if __name__ == '__main__':
-  monitordriver = MonitorDriver('../configs/config.yaml')
+  monitordriver = MonitorDriver('../../configs/config.yaml')
   monitordriver.setup()
   monitordriver()

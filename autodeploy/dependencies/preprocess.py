@@ -1,3 +1,4 @@
+from os import path
 import importlib
 
 from config import Config
@@ -21,6 +22,7 @@ class PreprocessDependency:
 
 
 if __name__ == '__main__':
+  config_path = path.join(path.dirname(path.abspath(__file__)), '../config/logging.conf')
   pd = PreprocessDependency(
-      Config(open('../configs/config.yaml')).get_config())
+      Config(open(config_path)).get_config())
   pd._get_fxn()
