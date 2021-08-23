@@ -1,4 +1,5 @@
 import pickle
+from os import path
 
 from logger import AppLogger
 
@@ -17,7 +18,8 @@ class PickleLoader:
         self.model_path = [self.model_path]
       models = []
       for model in self.model_path:
-        with open(model, 'rb') as reader:
+        model_path = path.join(path.dirname(path.abspath(__file__)), model)
+        with open(model_path, 'rb') as reader:
           models.append(pickle.load(reader))
       return models
     except FileNotFoundError as fnfe:

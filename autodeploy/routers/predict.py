@@ -25,7 +25,7 @@ from database import database, models
 from dependencies import preprocess
 
 from logger import AppLogger
-
+from security.scheme import oauth2_scheme
 router = APIRouter()
 
 applogger = AppLogger(__name__)
@@ -49,7 +49,7 @@ class PredictRouter:
 
     # connect to RabbitMQ Server.
     connection = pika.BlockingConnection(
-        pika.ConnectionParameters('localhost'))
+        pika.ConnectionParameters('127.0.0.1', port=5672))
     self.__channel = connection.channel()
 
     # create a queue named monitor.
@@ -84,9 +84,8 @@ class PredictRouter:
     output_model_schema = self.output_model_schema
     preprocess_fxn = self._dependency_fxn
 
-    @router.post(f'/{user_config.model.endpoint}',
-                 response_model=output_model_schema.UserOutputSchema)
-    async def structured_server(payload: input_model_schema.UserInputSchema, db: Session = Depends(utils.get_db)):
+    @router.post(f'/{user_config.model.endpoint}', response_model=output_model_schema.UserOutputSchema)
+    async def structured_server(payload: input_model_schema.UserInputSchema, db: Session = Depends(utils.get_db), token: str = Depends(oauth2_scheme)):
       nonlocal self
       try:
         _input_array = [v for k, v in payload]
