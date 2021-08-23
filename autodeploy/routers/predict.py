@@ -84,7 +84,8 @@ class PredictRouter:
     output_model_schema = self.output_model_schema
     preprocess_fxn = self._dependency_fxn
 
-    @router.post(f'/{user_config.model.endpoint}', response_model=output_model_schema.UserOutputSchema)
+    @router.post(f'/{user_config.model.endpoint}',
+                 response_model=output_model_schema.UserOutputSchema)
     async def structured_server(payload: input_model_schema.UserInputSchema, db: Session = Depends(utils.get_db), token: str = Depends(oauth2_scheme)):
       nonlocal self
       try:
