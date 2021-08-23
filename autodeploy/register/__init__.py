@@ -1,1 +1,1 @@
-from .register import INFERE, PREPROCESS
+from .register import INFER, PREPROCESS

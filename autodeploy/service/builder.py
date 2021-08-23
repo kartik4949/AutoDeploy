@@ -31,8 +31,8 @@ class InfereBuilder:
     self.multi_model = False
     self.num_models = 1
     self._version = self.config.model.get('version', 'n.a')
-    if len(model) > 1:
-      self.num_models = len(model)
+    if len(model_list) > 1:
+      self.num_models = len(model_list)
       self.multi_model = True
       logger.info('running multiple models..')
 
