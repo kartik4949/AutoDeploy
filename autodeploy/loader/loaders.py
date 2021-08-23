@@ -1,5 +1,5 @@
 import pickle
-
+from os import path
 
 class PickleLoader:
   def __init__(self, model_path):
@@ -7,5 +7,6 @@ class PickleLoader:
 
   def load(self):
     # TODO: do handling
-    with open(self.model_path, 'rb') as reader:
+    config_path = path.join(path.dirname(path.abspath(__file__)), self.model_path)    
+    with open(config_path, 'rb') as reader:
       return pickle.load(reader)

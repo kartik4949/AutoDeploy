@@ -1,0 +1,9 @@
+requests
+uvicorn
+fastapi
+scikit-learn
+pika
+sqlalchemy
+prometheus_fastapi_instrumentator
+pyyaml
+python-multipart

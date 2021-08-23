@@ -1,6 +1,6 @@
 """ A simple configuration class. """
 from typing import Dict
-
+from os import path
 import yaml
 
 
@@ -32,7 +32,8 @@ class Config(AttrDict):
 
   def _parse_from_yaml(self) -> Dict:
     """Parses a yaml file and returns a dictionary."""
-    with open(self.config_file, "r") as f:
+    config_path = path.join(path.dirname(path.abspath(__file__)), self.config_file)
+    with open(config_path, "r") as f:
       config_dict = yaml.load(f, Loader=yaml.FullLoader)
       return config_dict
 

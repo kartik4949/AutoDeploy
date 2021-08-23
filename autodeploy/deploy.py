@@ -22,6 +22,7 @@ from routers.predict import PredictRouter
 from routers.predict import router as prediction_router
 from routers.model import ModelDetailRouter
 from routers.model import router as model_detial_router
+from routers.security import router as auth_router
 from base import BaseDriverService
 
 
@@ -29,7 +30,7 @@ from base import BaseDriverService
 parser = argparse.ArgumentParser()
 parser.add_argument("-o", "--mode", default='debug', type=str,
                     help="model for running deployment ,mode can be PRODUCTION or DEBUG")
-parser.add_argument("-c", "--config", default='../configs/config.yaml', type=str,
+parser.add_argument("-c", "--config", default='../../configs/config.yaml', type=str,
                     help="a configuration yaml file path.")
 args = parser.parse_args()
 
@@ -131,7 +132,7 @@ class DeployDriver(BaseDriverService):
     '''
     a helper function to register routers in the app.
     '''
-    self._app_include([prediction_router, model_detial_router])
+    self._app_include([prediction_router, model_detial_router, auth_router])
 
   def run(self):
     '''
@@ -144,6 +145,7 @@ class DeployDriver(BaseDriverService):
 
 
 def main():
+  print(args.config)
   deploydriver = DeployDriver(args.config)
   deploydriver.setup()
   deploydriver.register_routers()

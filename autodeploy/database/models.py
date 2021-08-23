@@ -1,3 +1,5 @@
+from os import path
+
 from sqlalchemy import Boolean, Column, Integer, String, Float
 from pydantic import BaseModel 
 from pydantic.fields import ModelField
@@ -10,7 +12,9 @@ from utils import utils
 from config import Config
 
 SQLTYPE_MAPPER  = {'float': Float, 'str': String, 'int': Integer, 'bool': Boolean}
-config = Config('../configs/config.yaml').get_config()
+config_path = path.join(path.dirname(path.abspath(__file__)), '../../configs/config.yaml')
+    
+config = Config(config_path).get_config()
 
 def set_dynamic_inputs(cls):
   for k, v in dict(config.input_schema).items():
