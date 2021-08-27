@@ -66,6 +66,7 @@ class MonitorDriver(BaseMonitorService):
     self.queue = 'monitor'
     self.drift_detection = None
     self.model_metric_port = 8001
+    self.database = Database(config)
 
   def _get_array(self, body: Dict) -> List:
     '''
@@ -108,11 +109,14 @@ class MonitorDriver(BaseMonitorService):
     input = self._get_array(body)
     input = np.asarray(input)
     status = self.monitor.get_change(input)
-    logger.info(
-        f'Data Drift Detection {self.drift_detection} detected: {status}')
 
-    # TODO : delete it
-    print(
+    # modify data drift status
+    body['is_drift'] = status['data']['is_drift']
+
+    # store request data and model prediction in database.
+    request_store = models.Requests(**dict(body))
+    self.database.store_request(request_store)
+    logger.info(
         f'Data Drift Detection {self.drift_detection} detected: {status}')
 
     # expose prometheus_metric metrics
@@ -190,7 +194,13 @@ class MonitorDriver(BaseMonitorService):
 
     '''
     logger.info(' [*] Waiting for messages. To exit press CTRL+C')
-    self.channel.start_consuming()
+    self.database.setup()
+    try:
+      self.channel.start_consuming()
+    except Exception as e:
+      raise Exception('uncaught error while consuming message')
+    finally:
+      self.database.close()
 
 
 ''' A simple database class utility. '''
@@ -214,40 +224,29 @@ class Database:
   '''
 
   def __init__(self, config) -> None:
-    '''
-
-
-    '''
     self.config = config
+    self.db = None
 
-  def __enter__(self):
+  def setup(self):
     # create database engine and bind all.
     models.Base.metadata.create_all(bind=database.engine)
-    return self
+    self.db = database.SessionLocal()
 
-  def __exit__(self, exc_type, exc_value, exc_traceback):
-    # TODO: close connecttion to database while exiting.
-    pass
+  def close(self):
+    self.db.close()
 
-  def store_request(self, db, db_item) -> None:
+  def store_request(self, db_item) -> None:
 
     try:
-      db.add(db_item)
-      db.commit()
-      db.refresh(db_item)
+      self.db.add(db_item)
+      self.db.commit()
+      self.db.refresh(db_item)
     except Exception as exc:
       logger.error(
           'Some error occured while storing request in database.')
       raise Exception(
           'Some error occured while storing request in database.')
     return db_item
-
-  async def get_db(self) -> None:
-    db = database.SessionLocal()
-    try:
-      yield db
-    finally:
-      db.close()
 
 
 if __name__ == '__main__':
