@@ -1,14 +1,20 @@
 model:
-        model_type: 'sklearn'
-        model_path: ['/mnt/DATA/Learning/ODSC/AutoDeploy/logistic_regression_model.pkl', '/mnt/DATA/Learning/ODSC/AutoDeploy/logistic_regression_model.pkl']
-        ab_split: [80, 20]
-        model_file_type: 'pickle'
+        model_type: 'onnx'
+        model_path: '/home/kartik/personal_projects/AutoDeploy/horse_zebra.onnx'
+        model_file_type: 'onnx'
         version: '1.0.0'
-        model_name: 'scikit-learn iris model'
+        model_name: 'Onnx computer vision classification model.'
         endpoint: 'predict'
+        protected: 0
+        type: 'cv'
+        input_type: 'url'
+cv:
+        channels: 3
+        input_shape: [224, 224]
+        channels_first: 1
+        dtype: 'float32'
 input_schema:
-        age: 'int'
-        sex: 'int'
+        input: 'string' 
 out_schema:
         out: 'int'
         probablity: 'float'

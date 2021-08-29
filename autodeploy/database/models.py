@@ -13,7 +13,7 @@ from config import Config
 
 SQLTYPE_MAPPER = {
     'float': Float,
-    'str': String,
+    'string': String,
     'int': Integer,
     'bool': Boolean}
 config_path = path.join(path.dirname(path.abspath(__file__)),
