@@ -1,6 +1,7 @@
 model:
         model_type: 'sklearn'
-        model_path: '../logistic_regression_model.pkl'
+        model_path: ['/mnt/DATA/Learning/ODSC/AutoDeploy/logistic_regression_model.pkl', '/mnt/DATA/Learning/ODSC/AutoDeploy/logistic_regression_model.pkl']
+        ab_split: [80, 20]
         model_file_type: 'pickle'
         version: '1.0.0'
         model_name: 'scikit-learn iris model'
