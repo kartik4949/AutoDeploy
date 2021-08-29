@@ -102,14 +102,11 @@ class PredictRouter:
       else:
         logger.debug('model predict successfull.')
 
-      # store request data and model prediction in database.
       _time_stamp = datetime.now()
       _request_store = {'time_stamp': str(
           _time_stamp), 'prediction': model_output[0], 'is_drift': False}
       _request_store.update(dict(payload))
 
-      request_store = models.Requests(**dict(_request_store))
-      utils.store_request(db, request_store)
       self.__channel.basic_publish(exchange='',
                                    routing_key='monitor',
                                    body=json.dumps(dict(_request_store)))
