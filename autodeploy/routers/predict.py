@@ -94,14 +94,22 @@ class PredictRouter:
       nonlocal self
       try:
         _input_array = []
-        if self.user_config.model.get('input_type', 'na') == 'url':
+        _input_type = self.user_config.model.get('input_type', 'na')
+        if _input_type == 'url':
           for k, v in payload:
             if validators.url(v):
               _input_array.append(utils.url_loader(v))
             else:
               _input_array.append(v)
-        else:
+        elif _input_type == 'structure':
           _input_array = [v for k, v in payload]
+
+        elif _input_type == 'serialized':
+          for k, v in payload:
+            if isinstance(v, str):
+              v = np.asarray(json.loads(v))
+            _input_array.append(v)
+
         if preprocess_fxn:
           _input_array = preprocess_fxn(_input_array)
 

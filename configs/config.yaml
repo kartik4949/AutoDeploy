@@ -7,7 +7,7 @@ model:
         endpoint: 'predict'
         protected: 0
         type: 'cv'
-        input_type: 'url'
+        input_type: 'serialized'
 cv:
         channels: 3
         input_shape: [224, 224]
