@@ -1,6 +1,7 @@
 model:
         model_type: 'onnx'
-        model_path: '/home/kartik/personal_projects/AutoDeploy/horse_zebra.onnx'
+        model_path: ['/app/artifacts/horse_zebra.onnx', '/app/artifacts/horse_zebra.onnx']
+        ab_split: [80,20]
         model_file_type: 'onnx'
         version: '1.0.0'
         model_name: 'Onnx computer vision classification model.'
@@ -25,7 +26,7 @@ monitor:
         metrics:
                 metric1:
                         name: 'KSDrift'
-                        reference_data: './reference_data.npy'
+                        reference_data: '/app/artifacts/reference_data.npy'
                         type: 'info'
                 metric2:
                         name: 'average_per_day'

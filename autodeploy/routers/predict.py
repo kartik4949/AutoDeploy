@@ -50,8 +50,9 @@ class PredictRouter:
   def setupRabbitMq(self, ):
 
     # connect to RabbitMQ Server.
+  
     connection = pika.BlockingConnection(
-        pika.ConnectionParameters('127.0.0.1', port=5672))
+        pika.ConnectionParameters('rabbitmq', port=5672))
     self.__channel = connection.channel()
 
     # create a queue named monitor.
