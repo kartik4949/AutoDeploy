@@ -24,4 +24,5 @@ services:
     links: 
       - rabbitmq
       - autodeploy
-    
+    volumes: 
+      - ./configs/prometheus.yml:/etc/prometheus/prometheus.yml
