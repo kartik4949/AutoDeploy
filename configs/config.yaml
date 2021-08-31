@@ -1,22 +1,25 @@
 model:
-        model_type: 'sklearn'
-        model_path: '/home/kartik/personal_projects/AutoDeploy/autodeploy/logistic_regression_model.pkl'
-        model_file_type: 'pickle'
+        model_type: 'onnx'
+        model_path: '/home/kartik/personal_projects/AutoDeploy/horse_zebra.onnx'
+        model_file_type: 'onnx'
         version: '1.0.0'
         model_name: 'computer vision classification model.'
         endpoint: 'predict'
         protected: 0
-        input_type: 'structured'
+        input_type: 'serialized'
+        input_shape: [224, 224, 3]
         server:
                 name: 'autodeploy'
                 port: 8000
 input_schema:
-        age: 'int'
-        sex: 'int'
+        input: 'string'
 out_schema:
         out: 'int'
         probablity: 'float'
         status: 'int'
+preprocess:
+        path: 'preprocess'
+
 monitor:
         server:
                 name: 'localhost'

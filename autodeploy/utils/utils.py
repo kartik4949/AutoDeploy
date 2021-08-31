@@ -1,6 +1,7 @@
 """ a simple utilities functions. """
 import random
 from typing import Text
+import json
 
 import requests
 import io
@@ -27,7 +28,6 @@ def annotator(_dict):
     __dict[key] = (DATATYPES[value], ...)
   return __dict
 
-
 def generate_random_number(type=float):
   if isinstance(type, float):
     # TODO: remove hardcoded values
@@ -35,14 +35,18 @@ def generate_random_number(type=float):
   return random.randint(0, 10)
 
 
-def generate_random_from_schema(schema):
+def generate_random_from_schema(schema, serialized=False, shape=None):
   __dict = {}
   for k, v in dict(schema).items():
     if v not in DATATYPES:
       logger.error('input schema datatype is not valid.')
-      # TODO: handle exception
-    v = DATATYPES[v]
-    value = generate_random_number(v)
+      raise ValueError('input schema datatype is not valid.')
+    if v == 'string' and serialized:
+      input = np.random.uniform(size=shape)
+      value = json.dumps(input.tolist())
+    else:
+      v = DATATYPES[v]
+      value = generate_random_number(v)
     __dict[k] = value
   return __dict
 

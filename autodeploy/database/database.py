@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-
+''' SQL database url path. '''
 SQLALCHEMY_DATABASE_URL = "sqlite:///./data_drifts.db"
 
 engine = create_engine(

@@ -1,3 +1,4 @@
+''' a simple pydantic and sqlalchemy models utilities. '''
 from os import path
 
 from sqlalchemy import Boolean, Column, Integer, String, Float
@@ -23,6 +24,7 @@ config = Config(config_path).get_config()
 
 
 def set_dynamic_inputs(cls):
+  ''' a decorator to set dynamic model attributes. '''
   for k, v in dict(config.input_schema).items():
     setattr(cls, k, Column(SQLTYPE_MAPPER[v]))
   return cls
@@ -30,6 +32,9 @@ def set_dynamic_inputs(cls):
 
 @set_dynamic_inputs
 class Requests(Base):
+  '''
+  Requests class pydantic model with input_schema.
+  '''
   __tablename__ = "requests"
 
   id = Column(Integer, primary_key=True, index=True)
