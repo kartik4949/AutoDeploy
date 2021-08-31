@@ -144,7 +144,7 @@ class DeployDriver(BaseDriverService):
     '''
     # run uvicorn server.
     global app
-    uvicorn.run(app, port=self.user_config.server.port)
+    uvicorn.run(app, port=self.user_config.server.port, host="0.0.0.0")
 
 
 def main():
