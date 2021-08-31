@@ -8,3 +8,5 @@ prometheus_fastapi_instrumentator
 pyyaml==5.4.1
 python-multipart==0.0.5
 alibi-detect
+onnxruntime
+validators
