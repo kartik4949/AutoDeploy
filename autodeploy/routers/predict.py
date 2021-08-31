@@ -48,18 +48,14 @@ class PredictRouter:
   def setupRabbitMq(self, ):
 
     # connect to RabbitMQ Server.
-    try:  
-      connection = pika.BlockingConnection(
-          pika.ConnectionParameters('rabbitmq', port=5672))
-      self.__channel = connection.channel()
+  
+    connection = pika.BlockingConnection(
+        pika.ConnectionParameters('rabbitmq', port=5672))
+    self.__channel = connection.channel()
 
-      # create a queue named monitor.
-      self.__channel.queue_declare(queue='monitor')
-    except:
-      ...
-      # breakpoint()
-      # pass
-
+    # create a queue named monitor.
+    self.__channel.queue_declare(queue='monitor')
+    
   def setup(self, schemas):
 
     self.input_model_schema = schemas[0]
