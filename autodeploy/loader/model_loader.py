@@ -2,7 +2,7 @@
 from loader.loaders import *
 from logger import AppLogger
 
-ALLOWED_MODEL_TYPES = ['pickle', 'hdf5', 'joblib']
+ALLOWED_MODEL_TYPES = ['pickle', 'hdf5', 'joblib', 'onnx']
 
 logger = AppLogger(__name__).get_logger()
 
@@ -20,6 +20,11 @@ class ModelLoader:
     if self.model_type in ALLOWED_MODEL_TYPES:
       if self.model_type == 'pickle':
         loader = PickleLoader(
+            self.model_path, multi_model=self.multi_model)
+        return loader.load()
+
+      elif self.model_type == 'onnx':
+        loader = OnnxLoader(
             self.model_path, multi_model=self.multi_model)
         return loader.load()
 

@@ -2,11 +2,12 @@
 import traceback
 import argparse
 import requests
-from typing import List
+from typing import List, Optional, Union, Text, Any
 import json
 from datetime import datetime
 
 import uvicorn
+import validators
 import pika
 import numpy as np
 from fastapi import APIRouter
@@ -44,6 +45,7 @@ class PredictRouter:
       self.preprocess_dependency = preprocess.PreprocessDependency(
           config)
     self._dependency_fxn = None
+    self._protected = config.model.get('protected', False)
 
   def setupRabbitMq(self, ):
 
@@ -54,6 +56,7 @@ class PredictRouter:
 
     # create a queue named monitor.
     self.__channel.queue_declare(queue='monitor')
+    self.__channel.basic_qos(prefetch_count=1)
 
   def setup(self, schemas):
 
@@ -83,13 +86,30 @@ class PredictRouter:
     input_model_schema = self.input_model_schema
     output_model_schema = self.output_model_schema
     preprocess_fxn = self._dependency_fxn
+    _protected = self._protected
 
     @router.post(f'/{user_config.model.endpoint}',
                  response_model=output_model_schema.UserOutputSchema)
-    async def structured_server(payload: input_model_schema.UserInputSchema, db: Session = Depends(utils.get_db), token: str = Depends(oauth2_scheme)):
+    async def structured_server(payload: input_model_schema.UserInputSchema, db: Session = Depends(utils.get_db), token: Optional[Union[Text, Any]] = Depends(oauth2_scheme) if _protected else None):
       nonlocal self
       try:
-        _input_array = [v for k, v in payload]
+        _input_array = []
+        _input_type = self.user_config.model.get('input_type', 'na')
+        if _input_type == 'url':
+          for k, v in payload:
+            if validators.url(v):
+              _input_array.append(utils.url_loader(v))
+            else:
+              _input_array.append(v)
+        elif _input_type == 'structure':
+          _input_array = [v for k, v in payload]
+
+        elif _input_type == 'serialized':
+          for k, v in payload:
+            if isinstance(v, str):
+              v = np.asarray(json.loads(v))
+            _input_array.append(v)
+
         if preprocess_fxn:
           _input_array = preprocess_fxn(_input_array)
 

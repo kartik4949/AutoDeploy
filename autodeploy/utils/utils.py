@@ -1,5 +1,12 @@
 """ a simple utilities functions. """
 import random
+from typing import Text
+
+import requests
+import io
+from urllib.request import urlopen
+from PIL import Image
+import numpy as np
 
 from logger import AppLogger
 from database import database
@@ -56,3 +63,9 @@ def get_db():
     yield db
   finally:
     db.close()
+
+def url_loader(url: Text):
+  response = requests.get(url)
+  array_bytes = io.BytesIO(response.content)
+  array = Image.open(array_bytes)
+  return np.asarray(array)
