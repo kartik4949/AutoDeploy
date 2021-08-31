@@ -32,21 +32,7 @@ class OnnxInfere(BaseInfere):
     self.input_name = self.model.get_inputs()[0].name
     self.label_name = self.model.get_outputs()[0].name
 
-  def input_preprocess(self, input):
-    if self.config.model.type == 'cv':
-      _channels = self.config.cv.channels
-      _input_shape = self.config.cv.input_shape
-      _channels_first = self.config.cv.channels_first
-      input = cv2.resize(
-          input[0], dsize=self.config.cv.input_shape, interpolation=cv2.INTER_CUBIC)
-      if _channels_first:
-        input = np.reshape(input, (_channels, *self.config.cv.input_shape))
-      else:
-        input = np.reshape(input, (*self.config.cv.input_shape, _channels))
-      return np.asarray(input, dtype=getattr(np, self.config.cv.dtype))
-
   def infere(self, input):
-    input = self.input_preprocess(input=input)
     assert type(input) in [np.ndarray, list], 'Model input are not valid!'
     pred_onx = self.model.run(
         [self.label_name], {self.input_name: [input]})[0]

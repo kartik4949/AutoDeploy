@@ -1,32 +1,30 @@
 model:
-        model_type: 'onnx'
-        model_path: ['/app/artifacts/horse_zebra.onnx', '/app/artifacts/horse_zebra.onnx']
-        ab_split: [80,20]
-        model_file_type: 'onnx'
+        model_type: 'sklearn'
+        model_path: '/home/kartik/personal_projects/AutoDeploy/autodeploy/logistic_regression_model.pkl'
+        model_file_type: 'pickle'
         version: '1.0.0'
-        model_name: 'Onnx computer vision classification model.'
+        model_name: 'computer vision classification model.'
         endpoint: 'predict'
         protected: 0
-        type: 'cv'
-        input_type: 'serialized'
-cv:
-        channels: 3
-        input_shape: [224, 224]
-        channels_first: 1
-        dtype: 'float32'
+        input_type: 'structured'
+        server:
+                name: 'autodeploy'
+                port: 8000
 input_schema:
-        input: 'string' 
+        age: 'int'
+        sex: 'int'
 out_schema:
         out: 'int'
         probablity: 'float'
         status: 'int'
-server:
-        port: 8000
 monitor:
+        server:
+                name: 'localhost'
+                port: 5672
         metrics:
                 metric1:
                         name: 'KSDrift'
-                        reference_data: '/app/artifacts/reference_data.npy'
+                        reference_data: '/home/kartik/personal_projects/AutoDeploy/structured_ref.npy'
                         type: 'info'
                 metric2:
                         name: 'average_per_day'

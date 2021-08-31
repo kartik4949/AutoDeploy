@@ -46,13 +46,15 @@ class PredictRouter:
           config)
     self._dependency_fxn = None
     self._protected = config.model.get('protected', False)
+    self.host = self.user_config.monitor.server.name
+    self.port = self.user_config.monitor.server.port
 
   def setupRabbitMq(self, ):
 
     # connect to RabbitMQ Server.
-  
+
     connection = pika.BlockingConnection(
-        pika.ConnectionParameters('rabbitmq', port=5672))
+        pika.ConnectionParameters(self.host, port=self.port))
     self.__channel = connection.channel()
 
     # create a queue named monitor.
@@ -78,6 +80,7 @@ class PredictRouter:
     self.setupRabbitMq()
 
     # pick one function to register
+    # TODO: picks first preprocess function.
     if self.preprocess_dependency:
       self._dependency_fxn = list(
           self.preprocess_dependency._get_fxn().values())[0]
@@ -96,13 +99,7 @@ class PredictRouter:
       try:
         _input_array = []
         _input_type = self.user_config.model.get('input_type', 'na')
-        if _input_type == 'url':
-          for k, v in payload:
-            if validators.url(v):
-              _input_array.append(utils.url_loader(v))
-            else:
-              _input_array.append(v)
-        elif _input_type == 'structure':
+        if _input_type == 'structured':
           _input_array = [v for k, v in payload]
 
         elif _input_type == 'serialized':
@@ -110,6 +107,12 @@ class PredictRouter:
             if isinstance(v, str):
               v = np.asarray(json.loads(v))
             _input_array.append(v)
+        elif _input_type == 'url':
+          for k, v in payload:
+            if validators.url(v):
+              _input_array.append(utils.url_loader(v))
+            else:
+              _input_array.append(v)
 
         if preprocess_fxn:
           _input_array = preprocess_fxn(_input_array)
