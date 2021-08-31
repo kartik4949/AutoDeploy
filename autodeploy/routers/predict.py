@@ -50,6 +50,7 @@ class PredictRouter:
   def setupRabbitMq(self, ):
 
     # connect to RabbitMQ Server.
+  
     connection = pika.BlockingConnection(
         pika.ConnectionParameters('rabbitmq', port=5672))
     self.__channel = connection.channel()
