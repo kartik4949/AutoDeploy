@@ -1,0 +1,31 @@
+version: "2.1"
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    restart: always
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:15672"]
+      interval: 30s
+      timeout: 10s 
+    
+  autodeploy:
+    image: autodeploy:latest
+    ports:
+      - "8000:8000"
+    links: 
+      - rabbitmq
+    networks:
+      - default
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    links: 
+      - rabbitmq
+      - autodeploy
+      # network_mode: host
+    

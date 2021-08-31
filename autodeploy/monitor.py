@@ -62,7 +62,7 @@ class MonitorDriver(BaseMonitorService):
 
   def __init__(self, config) -> None:
     self.config = Config(config).get_config()
-    self.host = 'localhost'
+    self.host = 'rabbitmq'
     self.queue = 'monitor'
     self.drift_detection = None
     self.model_metric_port = 8001
@@ -159,12 +159,12 @@ class MonitorDriver(BaseMonitorService):
 
     try:
       connection = pika.BlockingConnection(
-          pika.ConnectionParameters(host=self.host))
+        pika.ConnectionParameters('rabbitmq', port=5672))
     except Exception as exc:
       logger.critical(
           'Error occured while creating connnection in rabbitmq')
       raise Exception(
-          'Error occured while creating connnection in rabbitmq')
+          'Error occured while creating connnection in rabbitmq', exc)
     channel = connection.channel()
 
     channel.queue_declare(queue=self.queue)

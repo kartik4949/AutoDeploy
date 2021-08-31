@@ -25,7 +25,7 @@ monitor:
         metrics:
                 metric1:
                         name: 'KSDrift'
-                        reference_data: './reference_data.npy'
+                        reference_data: '/app/artifacts/reference_data.npy'
                         type: 'info'
                 metric2:
                         name: 'average_per_day'
