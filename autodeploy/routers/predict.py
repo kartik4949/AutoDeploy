@@ -32,10 +32,23 @@ router = APIRouter()
 applogger = AppLogger(__name__)
 logger = applogger.get_logger()
 
-''' a simple prediction router class. '''
-
 
 class PredictRouter:
+  ''' a simple prediction router class
+  which routes prediction endpoint to fastapi 
+  application.
+
+  Args:
+    user_config (Config): a configuration instance.
+    preprocess_dependency (preprocess.PreprocessDependency): instance of PreprocessDependency.
+    port (int): port number for monitor service
+    host (str): hostname.
+  Raises:
+    BaseException: model prediction exception.
+
+
+  '''
+
   def __init__(self, config: Config) -> None:
     # user config for configuring model deployment.
     self.user_config = config
@@ -50,6 +63,9 @@ class PredictRouter:
     self.port = self.user_config.monitor.server.port
 
   def setupRabbitMq(self, ):
+    ''' a simple setup for rabbitmq server connection
+    and queue connection.
+    '''
 
     # connect to RabbitMQ Server.
 
@@ -62,6 +78,11 @@ class PredictRouter:
     self.__channel.basic_qos(prefetch_count=1)
 
   def setup(self, schemas):
+    ''' setup prediction endpoint method.
+
+    Args:
+      schemas (tuple): a user input and output schema tuple.
+    '''
 
     self.input_model_schema = schemas[0]
     self.output_model_schema = schemas[1]
@@ -86,6 +107,10 @@ class PredictRouter:
           self.preprocess_dependency._get_fxn().values())[0]
 
   def register_router(self):
+    ''' a main router registering funciton
+    which registers the prediction service to
+    user defined endpoint.
+    '''
     user_config = self.user_config
     input_model_schema = self.input_model_schema
     output_model_schema = self.output_model_schema

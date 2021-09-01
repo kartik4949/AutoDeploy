@@ -12,7 +12,7 @@ user_config = Config(os.environ['CONFIG']).get_config()
 
 
 class LoadTesting(HttpUser):
-  """ LoadTesting Class for load testing. """
+  """ LoadTesting class for load testing. """
 
   @task
   def load_test_request(self):

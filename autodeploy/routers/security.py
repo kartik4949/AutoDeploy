@@ -1,4 +1,4 @@
-
+''' a simple Security router utilities. '''
 from typing import Optional
 
 from fastapi import APIRouter
@@ -14,7 +14,6 @@ router = APIRouter(
     tags=["security"],
     responses={}
 )
-
 @router.post("/")
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
   user_dict = fake_users_db.get(form_data.username)

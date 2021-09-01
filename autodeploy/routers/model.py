@@ -1,3 +1,4 @@
+''' a simple Model details router utilities. '''
 import traceback
 
 from fastapi import APIRouter
@@ -17,10 +18,27 @@ async def startup():
 
 
 class ModelDetailRouter:
+  '''
+  a `ModelDetailRouter` class which routes `\model`
+  to fastapi application.
+  model detail endpoint gives model related details
+  example:
+    model: name of model.
+    version: model version details.
+
+  Args:
+    user_config (Config): configuration instance.
+
+  '''
+
   def __init__(self, config) -> None:
     self.user_config = config
 
   def register_router(self):
+    '''
+    a method to register model router to fastapi router.
+
+    '''
     @router.get('/model')
     async def model_details():
       nonlocal self
