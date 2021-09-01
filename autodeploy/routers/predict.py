@@ -63,6 +63,7 @@ class PredictRouter:
       self.postprocess_dependency = postprocess.PostprocessDependency(
           config)
     self._dependency_fxn = None
+    self._post_dependency_fxn = None
     self._protected = config.model.get('protected', False)
     self.host = self.user_config.monitor.server.name
     self.port = self.user_config.monitor.server.port

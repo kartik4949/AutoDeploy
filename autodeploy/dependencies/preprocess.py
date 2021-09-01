@@ -7,7 +7,7 @@ from config import Config
 from register import PREPROCESS
 
 
-class PostprocessDependency:
+class PreprocessDependency:
   '''
   a preprocess dependency class which creates
   preprocess dependency on predict endpoints.
