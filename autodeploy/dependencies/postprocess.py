@@ -1,16 +1,16 @@
-''' a simple preprocess dependency class '''
+''' a simple postprocess dependency class '''
 from os import path
 import json
 import importlib
 
 from config import Config
-from register import PREPROCESS
+from register import POSTPROCESS
 
 
-class PreprocessDependency:
+class PostprocessDependency:
   '''
-  a preprocess dependency class which creates
-  preprocess dependency on predict endpoints.
+  a postprocess dependency class which creates
+  postprocess dependency on predict endpoints.
 
   Args:
     config (str): configuration file.
@@ -22,11 +22,11 @@ class PreprocessDependency:
 
     # import to invoke the register
     try:
-      importlib.import_module(f'{config.preprocess.path}')
+      importlib.import_module(f'{config.postprocess.path}')
     except ImportError as ie:
-      raise ImportError('could not import preprocess from given path.')
+      raise ImportError('could not import postprocess from given path.')
 
   def _get_fxn(self, ):
-    fxns = PREPROCESS
+    fxns = POSTPROCESS
     # TODO: check fxn signatures with input schema
     return fxns.module_dict

@@ -1,5 +1,5 @@
 model:
-        model_type: 'sklear'
+        model_type: 'sklearn'
         model_path: '/home/kartik/personal_projects/AutoDeploy/autodeploy/custom_model.pkl'
         model_file_type: 'pickle'
         version: '1.0.0'
@@ -19,9 +19,6 @@ out_schema:
         out: 'int'
         probablity: 'float'
         status: 'int'
-preprocess:
-        path: 'preprocess'
-
 monitor:
         server:
                 name: 'localhost'
