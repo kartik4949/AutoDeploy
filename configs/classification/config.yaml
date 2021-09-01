@@ -1,6 +1,6 @@
 model:
         model_type: 'onnx'
-        model_path: '/home/kartik/personal_projects/AutoDeploy/horse_zebra.onnx'
+        model_path: '/home/kartik/personal_projects/AutoDeploy/artifacts/horse_zebra.onnx'
         model_file_type: 'onnx'
         version: '1.0.0'
         model_name: 'computer vision classification model.'
@@ -20,6 +20,8 @@ out_schema:
 preprocess:
         path: 'preprocess'
 
+postprocess:
+        path: 'postprocess'
 monitor:
         server:
                 name: 'localhost'
