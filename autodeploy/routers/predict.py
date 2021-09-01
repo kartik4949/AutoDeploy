@@ -23,7 +23,7 @@ from loader import ModelLoader
 from service.builder import InfereBuilder
 from logger import AppLogger
 from database import database, models
-from dependencies import preprocess
+from dependencies import preprocess, postprocess
 
 from logger import AppLogger
 from security.scheme import oauth2_scheme
@@ -56,6 +56,11 @@ class PredictRouter:
     self.preprocess_dependency = None
     if config.get('preprocess', None):
       self.preprocess_dependency = preprocess.PreprocessDependency(
+          config)
+
+    self.postprocess_dependency = None
+    if config.get('postprocess', None):
+      self.postprocess_dependency = postprocess.PostprocessDependency(
           config)
     self._dependency_fxn = None
     self._protected = config.model.get('protected', False)
@@ -106,6 +111,10 @@ class PredictRouter:
       self._dependency_fxn = list(
           self.preprocess_dependency._get_fxn().values())[0]
 
+    if self.postprocess_dependency:
+      self._post_dependency_fxn = list(
+          self.postprocess_dependency._get_fxn().values())[0]
+
   def register_router(self):
     ''' a main router registering funciton
     which registers the prediction service to
@@ -116,6 +125,7 @@ class PredictRouter:
     output_model_schema = self.output_model_schema
     preprocess_fxn = self._dependency_fxn
     _protected = self._protected
+    postprocess_fxn = self._post_dependency_fxn
 
     @router.post(f'/{user_config.model.endpoint}',
                  response_model=output_model_schema.UserOutputSchema)
@@ -145,6 +155,9 @@ class PredictRouter:
         # model inference/prediction.
         model_output, model_detail = self.__inference_executor.get_inference(
             _input_array)
+
+        if postprocess_fxn:
+          model_output = postprocess_fxn(model_output)
       except BaseException:
         logger.error('uncaught exception: %s', traceback.format_exc())
         raise ModelException(name='structured_server')
