@@ -2,12 +2,12 @@
 from os import path
 
 from logger import AppLogger
-from base import base_loader
+from base import BaseLoader
 
 logger = AppLogger(__name__).get_logger()
 
 
-class PickleLoader(base_loader):
+class PickleLoader(BaseLoader):
   ''' a simple PickleLoader class.
   class which loads pickle model file.
   Args:
@@ -36,7 +36,7 @@ class PickleLoader(base_loader):
       logger.error('model file not found...')
       raise FileNotFoundError('model file not found ...')
 
-class OnnxLoader(base_loader):
+class OnnxLoader(BaseLoader):
   ''' a simple OnnxLoader class.
   class which loads pickle model file.
   Args:

@@ -1,0 +1,36 @@
+model:
+        model_type: 'sklear'
+        model_path: '/home/kartik/personal_projects/AutoDeploy/autodeploy/custom_model.pkl'
+        model_file_type: 'pickle'
+        version: '1.0.0'
+        model_name: 'sklearn iris detection model.'
+        endpoint: 'predict'
+        protected: 0
+        input_type: 'structured'
+        server:
+                name: 'autodeploy'
+                port: 8000
+input_schema:
+        petal_length: 'float'
+        petal_width: 'float'
+        sepal_length: 'float'
+        sepal_width: 'float'
+out_schema:
+        out: 'int'
+        probablity: 'float'
+        status: 'int'
+preprocess:
+        path: 'preprocess'
+
+monitor:
+        server:
+                name: 'localhost'
+                port: 5672
+        metrics:
+                metric1:
+                        name: 'KSDrift'
+                        reference_data: '/home/kartik/personal_projects/AutoDeploy/structured_ref.npy'
+                        type: 'info'
+                metric2:
+                        name: 'average_per_day'
+                        type: 'gauge'

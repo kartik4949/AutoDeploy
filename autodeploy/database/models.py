@@ -1,5 +1,5 @@
 ''' a simple pydantic and sqlalchemy models utilities. '''
-from os import path
+from os import path, environ
 
 from sqlalchemy import Boolean, Column, Integer, String, Float
 from pydantic import BaseModel
@@ -18,7 +18,7 @@ SQLTYPE_MAPPER = {
     'int': Integer,
     'bool': Boolean}
 config_path = path.join(path.dirname(path.abspath(__file__)),
-                        '../../configs/config.yaml')
+                        environ['CONFIG'])
 
 config = Config(config_path).get_config()
 
