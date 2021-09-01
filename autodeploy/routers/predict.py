@@ -115,6 +115,12 @@ class PredictRouter:
       self._post_dependency_fxn = list(
           self.postprocess_dependency._get_fxn().values())[0]
 
+  def get_out_response(self, model_output):
+    ''' a helper function to get ouput response. '''
+    # TODO: change status code.
+    return {'out': model_output[0],
+            'probablity': model_output[1], 'status': 200}
+
   def register_router(self):
     ''' a main router registering funciton
     which registers the prediction service to
@@ -157,7 +163,7 @@ class PredictRouter:
             _input_array)
 
         if postprocess_fxn:
-          model_output = postprocess_fxn(model_output)
+          out_response = postprocess_fxn(model_output)
       except BaseException:
         logger.error('uncaught exception: %s', traceback.format_exc())
         raise ModelException(name='structured_server')
@@ -172,7 +178,6 @@ class PredictRouter:
       self.__channel.basic_publish(exchange='',
                                    routing_key='monitor',
                                    body=json.dumps(dict(_request_store)))
-
-      out_response = {'out': model_output[0],
-                      'probablity': model_output[1], 'status': 200}
+      if not postprocess_fxn:
+        out_response = self.get_out_response(model_output)
       return out_response
