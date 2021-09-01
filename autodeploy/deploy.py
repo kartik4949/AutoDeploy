@@ -2,8 +2,9 @@
 import traceback
 import argparse
 import requests
-from typing import List, Dict, Tuple, Any
+import os
 import json
+from typing import List, Dict, Tuple, Any
 from datetime import datetime
 
 import uvicorn
@@ -30,8 +31,6 @@ from base import BaseDriverService
 parser = argparse.ArgumentParser()
 parser.add_argument("-o", "--mode", default='debug', type=str,
                     help="model for running deployment ,mode can be PRODUCTION or DEBUG")
-parser.add_argument("-c", "--config", default='../../configs/config.yaml', type=str,
-                    help="a configuration yaml file path.")
 args = parser.parse_args()
 
 # __main__ (root) logger instance construction.
@@ -73,9 +72,9 @@ class DeployDriver(BaseDriverService):
 
   '''
 
-  def __init__(self, config) -> None:
+  def __init__(self, config_path) -> None:
     # user config for configuring model deployment.
-    self.user_config = Config(args.config).get_config()
+    self.user_config = Config(config_path).get_config()
 
   @staticmethod
   def _handler_setup():
@@ -144,11 +143,11 @@ class DeployDriver(BaseDriverService):
     '''
     # run uvicorn server.
     global app
-    uvicorn.run(app, port=self.user_config.server.port, host="0.0.0.0")
+    uvicorn.run(app, port=self.user_config.model.server.port, host="0.0.0.0")
 
 
 def main():
-  deploydriver = DeployDriver(args.config)
+  deploydriver = DeployDriver(os.environ['CONFIG'])
   deploydriver.setup()
   deploydriver.register_routers()
   deploydriver.run()

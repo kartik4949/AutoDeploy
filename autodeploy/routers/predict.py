@@ -32,10 +32,23 @@ router = APIRouter()
 applogger = AppLogger(__name__)
 logger = applogger.get_logger()
 
-''' a simple prediction router class. '''
-
 
 class PredictRouter:
+  ''' a simple prediction router class
+  which routes prediction endpoint to fastapi 
+  application.
+
+  Args:
+    user_config (Config): a configuration instance.
+    preprocess_dependency (preprocess.PreprocessDependency): instance of PreprocessDependency.
+    port (int): port number for monitor service
+    host (str): hostname.
+  Raises:
+    BaseException: model prediction exception.
+
+
+  '''
+
   def __init__(self, config: Config) -> None:
     # user config for configuring model deployment.
     self.user_config = config
@@ -46,13 +59,18 @@ class PredictRouter:
           config)
     self._dependency_fxn = None
     self._protected = config.model.get('protected', False)
+    self.host = self.user_config.monitor.server.name
+    self.port = self.user_config.monitor.server.port
 
   def setupRabbitMq(self, ):
+    ''' a simple setup for rabbitmq server connection
+    and queue connection.
+    '''
 
     # connect to RabbitMQ Server.
-  
+
     connection = pika.BlockingConnection(
-        pika.ConnectionParameters('rabbitmq', port=5672))
+        pika.ConnectionParameters(self.host, port=self.port))
     self.__channel = connection.channel()
 
     # create a queue named monitor.
@@ -60,6 +78,11 @@ class PredictRouter:
     self.__channel.basic_qos(prefetch_count=1)
 
   def setup(self, schemas):
+    ''' setup prediction endpoint method.
+
+    Args:
+      schemas (tuple): a user input and output schema tuple.
+    '''
 
     self.input_model_schema = schemas[0]
     self.output_model_schema = schemas[1]
@@ -78,11 +101,16 @@ class PredictRouter:
     self.setupRabbitMq()
 
     # pick one function to register
+    # TODO: picks first preprocess function.
     if self.preprocess_dependency:
       self._dependency_fxn = list(
           self.preprocess_dependency._get_fxn().values())[0]
 
   def register_router(self):
+    ''' a main router registering funciton
+    which registers the prediction service to
+    user defined endpoint.
+    '''
     user_config = self.user_config
     input_model_schema = self.input_model_schema
     output_model_schema = self.output_model_schema
@@ -96,13 +124,7 @@ class PredictRouter:
       try:
         _input_array = []
         _input_type = self.user_config.model.get('input_type', 'na')
-        if _input_type == 'url':
-          for k, v in payload:
-            if validators.url(v):
-              _input_array.append(utils.url_loader(v))
-            else:
-              _input_array.append(v)
-        elif _input_type == 'structure':
+        if _input_type == 'structured':
           _input_array = [v for k, v in payload]
 
         elif _input_type == 'serialized':
@@ -110,6 +132,12 @@ class PredictRouter:
             if isinstance(v, str):
               v = np.asarray(json.loads(v))
             _input_array.append(v)
+        elif _input_type == 'url':
+          for k, v in payload:
+            if validators.url(v):
+              _input_array.append(utils.url_loader(v))
+            else:
+              _input_array.append(v)
 
         if preprocess_fxn:
           _input_array = preprocess_fxn(_input_array)

@@ -1,6 +1,7 @@
-""" a simple utilities functions. """
+""" simple utilities functions. """
 import random
 from typing import Text
+import json
 
 import requests
 import io
@@ -18,6 +19,11 @@ logger = AppLogger(__name__).get_logger()
 
 
 def annotator(_dict):
+  '''
+  a utility function to convert configuration input schema
+  to pydantic model attributes dict.
+
+  '''
   __dict = {}
   for key, value in _dict.items():
     if value not in DATATYPES:
@@ -27,22 +33,29 @@ def annotator(_dict):
     __dict[key] = (DATATYPES[value], ...)
   return __dict
 
-
 def generate_random_number(type=float):
+  ''' a function to generate random number.  '''
   if isinstance(type, float):
     # TODO: remove hardcoded values
     return random.uniform(0.0, 10.0)
   return random.randint(0, 10)
 
 
-def generate_random_from_schema(schema):
+def generate_random_from_schema(schema, serialized=False, shape=None):
+  ''' a function to generate random data in input schema format
+  provided in coknfiguration file.
+  '''
   __dict = {}
   for k, v in dict(schema).items():
     if v not in DATATYPES:
       logger.error('input schema datatype is not valid.')
-      # TODO: handle exception
-    v = DATATYPES[v]
-    value = generate_random_number(v)
+      raise ValueError('input schema datatype is not valid.')
+    if v == 'string' and serialized:
+      input = np.random.uniform(size=shape)
+      value = json.dumps(input.tolist())
+    else:
+      v = DATATYPES[v]
+      value = generate_random_number(v)
     __dict[k] = value
   return __dict
 
@@ -65,6 +78,7 @@ def get_db():
     db.close()
 
 def url_loader(url: Text):
+  ''' a simple function to read url images in numpy array.  '''
   response = requests.get(url)
   array_bytes = io.BytesIO(response.content)
   array = Image.open(array_bytes)

@@ -62,7 +62,8 @@ class MonitorDriver(BaseMonitorService):
 
   def __init__(self, config) -> None:
     self.config = Config(config).get_config()
-    self.host = 'rabbitmq'
+    self.host = self.config.monitor.server.name
+    self.port = self.config.monitor.server.port
     self.queue = 'monitor'
     self.drift_detection = None
     self.model_metric_port = 8001
@@ -85,7 +86,10 @@ class MonitorDriver(BaseMonitorService):
     # TODO: do it better
     try:
       for k in input_schema.keys():
-        input.append(body[k])
+        if self.config.model.input_type == 'serialized' and k == 'input':
+          input.append(json.loads(body[k]))
+        else:
+          input.append(body[k])
     except KeyError as ke:
       logger.error(f'{k} key not found')
       raise KeyError(f'{k} key not found')
@@ -159,7 +163,7 @@ class MonitorDriver(BaseMonitorService):
 
     try:
       connection = pika.BlockingConnection(
-        pika.ConnectionParameters('rabbitmq', port=5672))
+          pika.ConnectionParameters(self.host, port=self.port))
     except Exception as exc:
       logger.critical(
           'Error occured while creating connnection in rabbitmq')
@@ -250,6 +254,6 @@ class Database:
 
 
 if __name__ == '__main__':
-  monitordriver = MonitorDriver('../../configs/config.yaml')
+  monitordriver = MonitorDriver(os.environ['CONFIG'])
   monitordriver.setup()
   monitordriver()

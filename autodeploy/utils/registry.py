@@ -1,3 +1,4 @@
+''' autodeploy register utilities. '''
 import inspect
 import warnings
 from functools import partial

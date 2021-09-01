@@ -1,0 +1,34 @@
+model:
+        model_type: 'onnx'
+        model_path: '/home/kartik/personal_projects/AutoDeploy/horse_zebra.onnx'
+        model_file_type: 'onnx'
+        version: '1.0.0'
+        model_name: 'computer vision classification model.'
+        endpoint: 'predict'
+        protected: 0
+        input_type: 'serialized'
+        input_shape: [224, 224, 3]
+        server:
+                name: 'autodeploy'
+                port: 8000
+input_schema:
+        input: 'string'
+out_schema:
+        out: 'int'
+        probablity: 'float'
+        status: 'int'
+preprocess:
+        path: 'preprocess'
+
+monitor:
+        server:
+                name: 'localhost'
+                port: 5672
+        metrics:
+                metric1:
+                        name: 'KSDrift'
+                        reference_data: '/home/kartik/personal_projects/AutoDeploy/structured_ref.npy'
+                        type: 'info'
+                metric2:
+                        name: 'average_per_day'
+                        type: 'gauge'

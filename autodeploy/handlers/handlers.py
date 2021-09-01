@@ -1,3 +1,4 @@
+''' A simple Exception handlers. '''
 from fastapi import Request, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError, StarletteHTTPException
@@ -5,6 +6,11 @@ from fastapi.responses import JSONResponse, PlainTextResponse
 
 
 class ModelException(Exception):
+  ''' Custom ModelException class 
+  Args:
+    name (str): name of the exception.
+  '''
+
   def __init__(self, name: str):
     self.name = name
 
@@ -25,7 +31,17 @@ async def http_exception_handler(request, exc):
 
 
 class Handler:
+  ''' Setup Handler class to setup 
+  and bind custom and overriden exceptions to fastapi
+  application.
+
+  '''
+
   def overide_handlers(self, app):
+    ''' A helper function to overide default fastapi handlers.
+    Args:
+      app: fastapi application.
+    '''
     _exc_app_request = app.exception_handler(RequestValidationError)
     _exc_app_starlette = app.exception_handler(StarletteHTTPException)
 
@@ -35,5 +51,9 @@ class Handler:
         http_exception_handler)
 
   def create_handlers(self, app):
+    ''' A function to bind handlers to fastapi application.
+    Args:
+      app: fastapi application.
+    '''
     _exc_app_model = app.exception_handler(ModelException)
     _exce_model_exception_handler = _exc_app_model(model_exception_handler)

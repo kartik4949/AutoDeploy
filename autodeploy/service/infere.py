@@ -10,7 +10,11 @@ from base import BaseInfere
 
 @INFER.register_module(name='sklearn')
 class SkLearnInfere(BaseInfere):
-  """ a SKLearn  inference class. """
+  """ a SKLearn  inference class. 
+  Args:
+    config (Config): a configuring instance.
+    model (Any): prediction model instance.
+  """
 
   def __init__(self, user_config, model):
     self.config = user_config
@@ -24,7 +28,13 @@ class SkLearnInfere(BaseInfere):
 
 @INFER.register_module(name='onnx')
 class OnnxInfere(BaseInfere):
-  """ a Onnx inference class. """
+  """ a Onnx inference class.
+  Args:
+    config (Config): a configuring instance.
+    model (Any): prediction model instance.
+    input_name (str): Onnx model input layer name. 
+    label_name (str): Onnx model output layer name. 
+  """
 
   def __init__(self, user_config, model):
     self.config = user_config
@@ -32,21 +42,15 @@ class OnnxInfere(BaseInfere):
     self.input_name = self.model.get_inputs()[0].name
     self.label_name = self.model.get_outputs()[0].name
 
-  def input_preprocess(self, input):
-    if self.config.model.type == 'cv':
-      _channels = self.config.cv.channels
-      _input_shape = self.config.cv.input_shape
-      _channels_first = self.config.cv.channels_first
-      input = cv2.resize(
-          input[0], dsize=self.config.cv.input_shape, interpolation=cv2.INTER_CUBIC)
-      if _channels_first:
-        input = np.reshape(input, (_channels, *self.config.cv.input_shape))
-      else:
-        input = np.reshape(input, (*self.config.cv.input_shape, _channels))
-      return np.asarray(input, dtype=getattr(np, self.config.cv.dtype))
-
   def infere(self, input):
-    input = self.input_preprocess(input=input)
+    '''
+    inference method to predict with onnx model
+    on input data.
+
+    Args:
+      input (ndarray): numpy input array.
+
+    '''
     assert type(input) in [np.ndarray, list], 'Model input are not valid!'
     pred_onx = self.model.run(
         [self.label_name], {self.input_name: [input]})[0]

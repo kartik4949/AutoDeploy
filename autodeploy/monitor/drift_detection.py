@@ -7,18 +7,19 @@ import alibi_detect.cd as alibi_drifts
 drift_detection_algorithms = ['KSDrift',
                               'AverageDriftDetection', 'AveragePerDay']
 
-
-class AverageDriftDetection:
-  def __init__(self) -> None:
-    pass
-
-  def add_stream(self, x):
-    return x
-
-
+# TODO: implement all detection algorithms.
 class DriftDetectionAlgorithmsMixin:
+  '''
+  A DriftDetection algorithms Mixin class
+  contains helper function to setup and 
+  retrive detection algorithms modules.
+
+  '''
 
   def get_drift(self, name):
+    ''' a method to retrive algorithm function
+    from name.
+    '''
     _built_in_drift_detecition = {}
     _built_in_clsmembers = inspect.getmembers(
         sys.modules[__name__], inspect.isclass)
