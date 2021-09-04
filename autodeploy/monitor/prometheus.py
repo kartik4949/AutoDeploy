@@ -1,9 +1,11 @@
 from collections import defaultdict
+import importlib
 from typing import Dict
 
 from prometheus_client import Counter, Gauge, Summary, Info, Enum
 
 from monitor.drift_detection import drift_detection_algorithms
+from register import METRICS
 
 
 _metric_types = {'gauge': Gauge, 'summary': Summary,
@@ -24,12 +26,21 @@ class PrometheusModelMetric:
 
   def __init__(self, config) -> None:
     self.config = config
-    metrics_meta = dict(self.config.monitor.metrics)
     self._metrics = defaultdict()
+
     self.data_drift = None
-    for k, v in metrics_meta.items():
-      self._metrics.update(
-          {v['name']: _metric_types[v['type']](v['name'], 'N/A')})
+    data_drift_meta = self.config.monitor.get('data_drift', None)
+    if data_drift_meta:
+      self.data_drift = Info(data_drift_meta.name, 'N/A')
+    self.drift_status = None
+
+    self.metric_list = []
+
+    metrics_meta = self.config.monitor.metrics
+    if metrics_meta:
+      for k, v in metrics_meta.items():
+        self._metrics.update(
+            {k: _metric_types[v['type']](k, 'N/A')})
 
   def default_model_metric(self):
     '''
@@ -54,9 +65,6 @@ class PrometheusModelMetric:
 
     '''
     for k, v in self._metrics.items():
-      if k in drift_detection_algorithms:
-        self.data_drift = v
-        continue
       setattr(self, k, v)
 
   def convert_str(self, status: Dict):
@@ -66,11 +74,36 @@ class PrometheusModelMetric:
       _dict.update({k: str(v)})
     return _dict
 
+  def expose(self, input):
+    if self.drift_status:
+      status = self.convert_str(self.drift_status)
+      self.data_drift.info(status)
+    self.monitor_state.state('up')
+    for metric in self.metric_list:
+      result = metric(input)
+      self._metrics[metric.__name__].set(result)
+
+  def setup_custom_metric(self):
+    # import to invoke the register
+    try:
+      importlib.import_module(f'{self.config.monitor.custom_metric.path}')
+    except ImportError as ie:
+      raise ImportError('could not import custom_metric from given path.')
+    for name, module in METRICS.module_dict.items():
+      if module.__name__ not in self._metrics.keys():
+        self._metrics[module.__name__] = Gauge(module.__name__, 'N/A')
+      self.metric_list.append(module)
+
+  def set_drift_status(self, status):
+    self.drift_status = status
+
   def setup(self):
     '''
     A setup function which binds custom and default prometheus_client
     metrics to PrometheusModelMetric class.
 
     '''
+    if self.config.monitor.get('custom_metric', None):
+      self.setup_custom_metric()
     self.set_metrics_attributes()
     self.default_model_metric()

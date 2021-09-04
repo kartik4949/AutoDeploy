@@ -21,13 +21,14 @@ out_schema:
         status: 'int'
 monitor:
         server:
-                name: 'localhost'
+                name: 'rabbitmq'
                 port: 5672
+        data_drift:
+                name: 'KSDrift'
+                reference_data: '/home/kartik/personal_projects/AutoDeploy/artifacts/iris_reference.npy'
+                type: 'info'
+        custom_metric:
+                path: 'custom_metric'
         metrics:
-                metric1:
-                        name: 'KSDrift'
-                        reference_data: '/home/kartik/personal_projects/AutoDeploy/structured_ref.npy'
+                average_per_day:
                         type: 'info'
-                metric2:
-                        name: 'average_per_day'
-                        type: 'gauge'

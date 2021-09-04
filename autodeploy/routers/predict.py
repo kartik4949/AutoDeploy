@@ -136,6 +136,7 @@ class PredictRouter:
 
     @router.post(f'/{user_config.model.endpoint}',
                  response_model=output_model_schema.UserOutputSchema)
+    # TODO remove db
     async def structured_server(payload: input_model_schema.UserInputSchema, db: Session = Depends(utils.get_db), token: Optional[Union[Text, Any]] = Depends(oauth2_scheme) if _protected else None):
       nonlocal self
       try:
