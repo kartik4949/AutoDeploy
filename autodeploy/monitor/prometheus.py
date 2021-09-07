@@ -79,6 +79,7 @@ class PrometheusModelMetric:
     return _dict
 
   def expose(self, input, output):
+    ''' Expose method to expose metrics to prometheus server. '''
     if self.drift_status:
       status = self.convert_str(self.drift_status)
       self.data_drift.info(status)
@@ -91,11 +92,9 @@ class PrometheusModelMetric:
       self._metrics[metric.__name__].set(result)
 
   def setup_custom_metric(self):
-    # import to invoke the register
-    try:
-      importlib.import_module(f'{self.config.monitor.custom_metric.path}')
-    except ImportError as ie:
-      raise ImportError('could not import custom_metric from given path.')
+    ''' a simple setup custom metric function to set 
+    custom functions.
+    '''
     for name, module in METRICS.module_dict.items():
       if module.__name__ not in self._metrics.keys():
         self._metrics[module.__name__] = Gauge(module.__name__, 'N/A')
