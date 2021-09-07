@@ -1,5 +1,7 @@
 # AutoDeploy
 
+# Feature Support.
+
 - [x] Single Configuration file support.
 - [x] Production Deployment.
 - [x] Logging.
@@ -15,5 +17,7 @@
 - [x] Async API Server.
 - [x] Async Model Monitoring.
 - [x] Production Architecture.
-- [ ] Kubernetes
-- [ ] Batch Prediction
+- [ ] Kubernetes.
+- [ ] Batch Prediction.
+- [ ] Preprocess configuration.
+- [ ] Posprocess configuration.
