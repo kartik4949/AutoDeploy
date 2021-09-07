@@ -157,15 +157,24 @@ class PredictRouter:
             else:
               _input_array.append(v)
 
+        cache = None
         if preprocess_fxn:
-          _input_array = preprocess_fxn(_input_array)
+          _input_array= preprocess_fxn(_input_array)
+
+          if isinstance(_input_array, tuple):
+            _input_array = _input_array, cache
+
 
         # model inference/prediction.
         model_output, model_detail = self.__inference_executor.get_inference(
             _input_array)
 
         if postprocess_fxn:
-          out_response = postprocess_fxn(model_output)
+          if cache:
+            out_response = postprocess_fxn(model_output)
+          else:
+            out_response = postprocess_fxn(model_output, cache)
+
       except BaseException:
         logger.error('uncaught exception: %s', traceback.format_exc())
         raise ModelException(name='structured_server')
