@@ -28,13 +28,16 @@ from dependencies import LoadDependency
 
 from logger import AppLogger
 from security.scheme import oauth2_scheme
+from backend import Database, RabbitMQClient
+
+
 router = APIRouter()
 
 applogger = AppLogger(__name__)
 logger = applogger.get_logger()
 
 
-class PredictRouter:
+class PredictRouter(RabbitMQClient, Database):
   ''' a simple prediction router class
   which routes prediction endpoint to fastapi 
   application.
@@ -51,6 +54,7 @@ class PredictRouter:
   '''
 
   def __init__(self, config: Config) -> None:
+    super(PredictRouter, self).__init__(config)
     # user config for configuring model deployment.
     self.user_config = config
     self.dependencies = None
@@ -61,23 +65,6 @@ class PredictRouter:
     self._dependency_fxn = None
     self._post_dependency_fxn = None
     self._protected = config.model.get('protected', False)
-    self.host = self.user_config.monitor.server.name
-    self.port = self.user_config.monitor.server.port
-
-  def setupRabbitMq(self, ):
-    ''' a simple setup for rabbitmq server connection
-    and queue connection.
-    '''
-
-    # connect to RabbitMQ Server.
-
-    connection = pika.BlockingConnection(
-        pika.ConnectionParameters(self.host, port=self.port))
-    self.__channel = connection.channel()
-
-    # create a queue named monitor.
-    self.__channel.queue_declare(queue='monitor')
-    self.__channel.basic_qos(prefetch_count=1)
 
   def setup(self, schemas):
     ''' setup prediction endpoint method.
@@ -89,7 +76,7 @@ class PredictRouter:
     self.input_model_schema = schemas[0]
     self.output_model_schema = schemas[1]
     # create database connection.
-    models.Base.metadata.create_all(bind=database.engine)
+    self.bind()
 
     # create model loader instance.
     model_path = os.path.join(self.user_config.dependency.path,
@@ -180,10 +167,8 @@ class PredictRouter:
       _request_store = {'time_stamp': str(
           _time_stamp), 'prediction': model_output[0], 'is_drift': False}
       _request_store.update(dict(payload))
+      self.publish_rbmq(_request_store)
 
-      self.__channel.basic_publish(exchange='',
-                                   routing_key='monitor',
-                                   body=json.dumps(dict(_request_store)))
       if not postprocess_fxn:
         out_response = self.get_out_response(model_output)
       return out_response

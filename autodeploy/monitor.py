@@ -14,11 +14,12 @@ from prometheus_client import start_http_server
 
 from base import BaseMonitorService
 from config import Config
-from database import database, models
 from monitor import Monitor
+from database import models
 from logger import AppLogger
 from monitor import PrometheusModelMetric
 from monitor.drift_detection import drift_detection_algorithms
+from backend import RabbitMQConsume, Database
 
 applogger = AppLogger(__name__)
 logger = applogger.get_logger()
@@ -26,7 +27,7 @@ logger = applogger.get_logger()
 ''' A simple Monitor Driver class. '''
 
 
-class MonitorDriver(BaseMonitorService):
+class MonitorDriver(RabbitMQConsume, BaseMonitorService, Database):
   '''
   A simple Monitor Driver class for creating monitoring model
   and listening to rabbitmq queue i.e Monitor.
@@ -62,8 +63,7 @@ class MonitorDriver(BaseMonitorService):
 
   def __init__(self, config) -> None:
     self.config = Config(config).get_config()
-    self.host = self.config.monitor.server.name
-    self.port = self.config.monitor.server.port
+    super().__init__(self.config)
     self.queue = 'monitor'
     self.drift_detection = None
     self.model_metric_port = 8001
@@ -158,21 +158,8 @@ class MonitorDriver(BaseMonitorService):
     if self.config.monitor.get('data_drift', None):
       self.drift_detection = self._load_monitor_algorithm()
 
-    try:
-      connection = pika.BlockingConnection(
-          pika.ConnectionParameters(self.host, port=self.port))
-    except Exception as exc:
-      logger.critical(
-          'Error occured while creating connnection in rabbitmq')
-      raise Exception(
-          'Error occured while creating connnection in rabbitmq', exc)
-    channel = connection.channel()
-
-    channel.queue_declare(queue=self.queue)
-
-    channel.basic_consume(
-        queue=self.queue, on_message_callback=self._callback, auto_ack=True)
-    self.channel = channel
+    # setup rabbitmq channel and queue.
+    self.setupRabbitMQ(self._callback)
 
     self.prometheus_server()
 
@@ -202,52 +189,6 @@ class MonitorDriver(BaseMonitorService):
       raise Exception('uncaught error while consuming message')
     finally:
       self.database.close()
-
-
-''' A simple database class utility. '''
-
-
-class Database:
-  '''
-  A database class that creates and stores incoming requests
-  in user define database with given schema.
-  Args:
-    config (Config): A configuration object which contains configuration
-    for the deployment.
-
-  Attributes:
-    config (Config): internal configuration object for configurations.
-
-  Example:
-    >> with Database(config) as db:
-    >> .... db.store_request(item)
-
-  '''
-
-  def __init__(self, config) -> None:
-    self.config = config
-    self.db = None
-
-  def setup(self):
-    # create database engine and bind all.
-    models.Base.metadata.create_all(bind=database.engine)
-    self.db = database.SessionLocal()
-
-  def close(self):
-    self.db.close()
-
-  def store_request(self, db_item) -> None:
-
-    try:
-      self.db.add(db_item)
-      self.db.commit()
-      self.db.refresh(db_item)
-    except Exception as exc:
-      logger.error(
-          'Some error occured while storing request in database.')
-      raise Exception(
-          'Some error occured while storing request in database.')
-    return db_item
 
 
 if __name__ == '__main__':
