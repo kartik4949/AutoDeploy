@@ -24,7 +24,8 @@ class PreprocessDependency:
     try:
       importlib.import_module(f'{config.preprocess.path}')
     except ImportError as ie:
-      raise ImportError('could not import preprocess from given path.')
+      import sys; print(sys.path)
+      raise ImportError(f'could not import preprocess from given path: {config.preprocess.path}')
 
   def _get_fxn(self, ):
     fxns = PREPROCESS

@@ -1,27 +1,28 @@
 model:
-        model_type: 'sklearn'
-        model_path: '/home/kartik/personal_projects/AutoDeploy/autodeploy/custom_model.pkl'
-        model_file_type: 'pickle'
+        model_type: 'onnx'
+        model_path: '/app/autodeploy/artifacts/model.pt.onnx'
+        model_file_type: 'onnx'
         version: '1.0.0'
-        model_name: 'sklearn iris detection model.'
+        model_name: 'object detection for bus/trucks'
         endpoint: 'predict'
         protected: 0
-        input_type: 'structured'
+        input_type: 'serialized'
+        input_shape: [224, 224, 3]
         server:
                 name: 'autodeploy'
                 port: 8000
 input_schema:
-        petal_length: 'float'
-        petal_width: 'float'
-        sepal_length: 'float'
-        sepal_width: 'float'
+        input: 'string'
 out_schema:
-        out: 'int'
-        probablity: 'float'
+        out: 'list'
         status: 'int'
+preprocess:
+        path: 'model_functions'
+postprocess:
+        path: 'model_functions'
 monitor:
         server:
-                name: 'localhost'
+                name: 'rabbitmq'
                 port: 5672
         metrics:
                 metric1:

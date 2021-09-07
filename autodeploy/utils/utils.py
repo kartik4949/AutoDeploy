@@ -13,7 +13,7 @@ from logger import AppLogger
 from database import database
 
 # datatypes mapper dictionary.
-DATATYPES = {'string': str, 'int': int, 'float': float, 'bool': bool}
+DATATYPES = {'string': str, 'int': int, 'float': float, 'bool': bool, 'list': list}
 
 logger = AppLogger(__name__).get_logger()
 

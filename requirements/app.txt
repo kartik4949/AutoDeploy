@@ -1,0 +1,4 @@
+icevision[all]
+yolov5-icevision
+torch_snippets
+opencv-python==4.2.0.32

@@ -16,6 +16,8 @@ RUN apt-get install -y libgl1-mesa-glx libglib2.0-0 libsm6 libxrender1 libxext6 
 
 RUN apt-get install iputils-ping netcat -y
 
+COPY ./requirements/app.txt /app/requirements.txt
+RUN python3 -m pip install -r /app/requirements.txt
 
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8

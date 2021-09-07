@@ -157,14 +157,14 @@ class PredictRouter:
               _input_array.append(v)
 
         if preprocess_fxn:
-          _input_array = preprocess_fxn(_input_array)
+          _input_array, cache = preprocess_fxn(_input_array)
 
         # model inference/prediction.
         model_output, model_detail = self.__inference_executor.get_inference(
             _input_array)
 
         if postprocess_fxn:
-          out_response = postprocess_fxn(model_output)
+          out_response = postprocess_fxn(model_output, cache)
       except BaseException:
         logger.error('uncaught exception: %s', traceback.format_exc())
         raise ModelException(name='structured_server')
@@ -173,7 +173,7 @@ class PredictRouter:
 
       _time_stamp = datetime.now()
       _request_store = {'time_stamp': str(
-          _time_stamp), 'prediction': model_output[0], 'is_drift': False}
+          _time_stamp), 'prediction': model_output[0].tolist(), 'is_drift': False}
       _request_store.update(dict(payload))
 
       self.__channel.basic_publish(exchange='',
