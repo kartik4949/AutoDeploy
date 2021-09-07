@@ -112,34 +112,31 @@ class MonitorDriver(BaseMonitorService):
 
     input = self._get_array(body)
     input = np.asarray(input)
-    status = self.monitor.get_change(input)
+    output = body['prediction']
+    if self.drift_detection:
+      drift_status = self.drift_detection.get_change(input)
+      self.prometheus_metric.set_drift_status(drift_status)
 
-    # modify data drift status
-    body['is_drift'] = status['data']['is_drift']
+      # modify data drift status
+      body['is_drift'] = drift_status['data']['is_drift']
 
     # store request data and model prediction in database.
     request_store = models.Requests(**dict(body))
     self.database.store_request(request_store)
-    logger.info(
-        f'Data Drift Detection {self.drift_detection} detected: {status}')
+    if self.drift_detection:
+      logger.info(
+          f'Data Drift Detection {self.config.monitor.data_drift.name} detected: {drift_status}')
 
     # expose prometheus_metric metrics
-    status = self.prometheus_metric.convert_str(status)
-    self.prometheus_metric.data_drift.info(status)
-    self.prometheus_metric.monitor_state.state('up')
+    self.prometheus_metric.expose(input, output)
 
   def _load_monitor_algorithm(self) -> Optional[Union[Monitor, None]]:
     reference_data = None
     monitor = None
-    drift_name = None
-    for k, v in self.config.monitor.metrics.items():
-      if v['name'] in drift_detection_algorithms:
-        reference_data = v['reference_data']
-        drift_name = v['name']
-    if reference_data:
-      reference_data = np.load(reference_data)
-      monitor = Monitor(self.config, drift_name, reference_data)
-    self.drift_detection = drift_name
+    drift_name = self.config.monitor.data_drift.name
+    reference_data = self.config.monitor.data_drift.reference_data
+    reference_data = np.load(reference_data)
+    monitor = Monitor(self.config, drift_name, reference_data)
     return monitor
 
   def prometheus_server(self) -> None:
@@ -157,9 +154,8 @@ class MonitorDriver(BaseMonitorService):
     '''
     self.prometheus_metric = PrometheusModelMetric(self.config)
     self.prometheus_metric.setup()
-
-    monitor = self._load_monitor_algorithm()
-    self.monitor = monitor
+    if self.config.monitor.get('data_drift', None):
+      self.drift_detection = self._load_monitor_algorithm()
 
     try:
       connection = pika.BlockingConnection(

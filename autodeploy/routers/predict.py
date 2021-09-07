@@ -119,8 +119,8 @@ class PredictRouter:
   def get_out_response(self, model_output):
     ''' a helper function to get ouput response. '''
     # TODO: change status code.
-    return {'out': model_output[0],
-            'probablity': model_output[1], 'status': 200}
+    return {'out': model_output[1],
+            'probablity': model_output[0], 'status': 200}
 
   def register_router(self):
     ''' a main router registering funciton
@@ -136,6 +136,7 @@ class PredictRouter:
 
     @router.post(f'/{user_config.model.endpoint}',
                  response_model=output_model_schema.UserOutputSchema)
+    # TODO remove db
     async def structured_server(payload: input_model_schema.UserInputSchema, db: Session = Depends(utils.get_db), token: Optional[Union[Text, Any]] = Depends(oauth2_scheme) if _protected else None):
       nonlocal self
       try:
