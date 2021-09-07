@@ -1,0 +1,34 @@
+model:
+        model_type: 'onnx'
+        model_path: 'horse_zebra.onnx'
+        model_file_type: 'onnx'
+        version: '1.0.0'
+        model_name: 'computer vision classification model.'
+        endpoint: 'predict'
+        protected: 0
+        input_type: 'serialized'
+        input_shape: [224, 224, 3]
+        server:
+                name: 'autodeploy'
+                port: 8000
+input_schema:
+        input: 'string'
+out_schema:
+        out: 'int'
+        probablity: 'float'
+        status: 'int'
+dependency:
+        path: './model_dependencies'
+monitor:
+        server:
+                name: 'rabbitmq'
+                port: 5672
+        data_drift:
+                name: 'KSDrift'
+                reference_data: 'structured_ref.npy'
+                type: 'info'
+        custom_metric:
+                path: 'custom'
+        metrics:
+                average_per_day:
+                        type: 'info'

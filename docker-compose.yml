@@ -1,0 +1,28 @@
+version: "2.1"
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    restart: always
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+
+  autodeploy:
+    image: autodeploy:latest
+    ports:
+      - "8000:8000"
+    links: 
+      - rabbitmq
+    networks:
+      - default
+  
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    links: 
+      - rabbitmq
+      - autodeploy
+    volumes: 
+      - ./configs/prometheus.yml:/etc/prometheus/prometheus.yml

@@ -1,0 +1,12 @@
+requests==2.26.0
+uvicorn==0.15.0
+fastapi==0.68.0
+scikit-learn==0.24.2
+pika==1.2.0
+sqlalchemy==1.4.23
+prometheus_fastapi_instrumentator
+pyyaml==5.4.1
+python-multipart==0.0.5
+alibi-detect
+onnxruntime
+validators
