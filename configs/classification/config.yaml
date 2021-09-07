@@ -1,6 +1,6 @@
 model:
         model_type: 'onnx'
-        model_path: '/home/kartik/personal_projects/AutoDeploy/artifacts/horse_zebra.onnx'
+        model_path: 'horse_zebra.onnx'
         model_file_type: 'onnx'
         version: '1.0.0'
         model_name: 'computer vision classification model.'
@@ -17,18 +17,15 @@ out_schema:
         out: 'int'
         probablity: 'float'
         status: 'int'
-preprocess:
-        path: 'preprocess'
-
-postprocess:
-        path: 'postprocess'
+dependency:
+        path: './model_dependencies'
 monitor:
         server:
                 name: 'rabbitmq'
                 port: 5672
         data_drift:
                 name: 'KSDrift'
-                reference_data: '/home/kartik/personal_projects/AutoDeploy/artifacts/structured_ref.npy'
+                reference_data: 'structured_ref.npy'
                 type: 'info'
         custom_metric:
                 path: 'custom'

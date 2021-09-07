@@ -1,6 +1,7 @@
 ''' a simple prediction router. '''
 import traceback
 import argparse
+import os
 import requests
 from typing import List, Optional, Union, Text, Any
 import json
@@ -23,7 +24,7 @@ from loader import ModelLoader
 from service.builder import InfereBuilder
 from logger import AppLogger
 from database import database, models
-from dependencies import preprocess, postprocess
+from dependencies import LoadDependency
 
 from logger import AppLogger
 from security.scheme import oauth2_scheme
@@ -40,7 +41,7 @@ class PredictRouter:
 
   Args:
     user_config (Config): a configuration instance.
-    preprocess_dependency (preprocess.PreprocessDependency): instance of PreprocessDependency.
+    dependencies (LoadDependency): instance of LoadDependency.
     port (int): port number for monitor service
     host (str): hostname.
   Raises:
@@ -52,16 +53,11 @@ class PredictRouter:
   def __init__(self, config: Config) -> None:
     # user config for configuring model deployment.
     self.user_config = config
-
-    self.preprocess_dependency = None
-    if config.get('preprocess', None):
-      self.preprocess_dependency = preprocess.PreprocessDependency(
+    self.dependencies = None
+    if config.get('dependency', None):
+      self.dependencies = LoadDependency(
           config)
 
-    self.postprocess_dependency = None
-    if config.get('postprocess', None):
-      self.postprocess_dependency = postprocess.PostprocessDependency(
-          config)
     self._dependency_fxn = None
     self._post_dependency_fxn = None
     self._protected = config.model.get('protected', False)
@@ -96,8 +92,10 @@ class PredictRouter:
     models.Base.metadata.create_all(bind=database.engine)
 
     # create model loader instance.
+    model_path = os.path.join(self.user_config.dependency.path,
+                              self.user_config.model.model_path)
     _model_loader = ModelLoader(
-        self.user_config.model.model_path, self.user_config.model.model_file_type)
+        model_path, self.user_config.model.model_file_type)
     __model = _model_loader.load()
 
     # inference model builder.
@@ -106,15 +104,13 @@ class PredictRouter:
     # setupRabbitMq
     self.setupRabbitMq()
 
+    self.dependencies.import_dependencies()
+
     # pick one function to register
     # TODO: picks first preprocess function.
-    if self.preprocess_dependency:
-      self._dependency_fxn = list(
-          self.preprocess_dependency._get_fxn().values())[0]
+    self._dependency_fxn = self.dependencies.preprocess_fxn
 
-    if self.postprocess_dependency:
-      self._post_dependency_fxn = list(
-          self.postprocess_dependency._get_fxn().values())[0]
+    self._post_dependency_fxn = self.dependencies.postprocess_fxn
 
   def get_out_response(self, model_output):
     ''' a helper function to get ouput response. '''
@@ -159,11 +155,10 @@ class PredictRouter:
 
         cache = None
         if preprocess_fxn:
-          _input_array= preprocess_fxn(_input_array)
+          _input_array = preprocess_fxn(_input_array)
 
           if isinstance(_input_array, tuple):
             _input_array = _input_array, cache
-
 
         # model inference/prediction.
         model_output, model_detail = self.__inference_executor.get_inference(
@@ -171,9 +166,9 @@ class PredictRouter:
 
         if postprocess_fxn:
           if cache:
-            out_response = postprocess_fxn(model_output)
-          else:
             out_response = postprocess_fxn(model_output, cache)
+          else:
+            out_response = postprocess_fxn(model_output)
 
       except BaseException:
         logger.error('uncaught exception: %s', traceback.format_exc())

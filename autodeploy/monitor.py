@@ -134,7 +134,8 @@ class MonitorDriver(BaseMonitorService):
     reference_data = None
     monitor = None
     drift_name = self.config.monitor.data_drift.name
-    reference_data = self.config.monitor.data_drift.reference_data
+    reference_data = os.path.join(
+        self.config.dependency.path, self.config.monitor.data_drift.reference_data)
     reference_data = np.load(reference_data)
     monitor = Monitor(self.config, drift_name, reference_data)
     return monitor

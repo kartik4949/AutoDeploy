@@ -1,6 +1,6 @@
 model:
         model_type: 'sklearn'
-        model_path: '/home/kartik/personal_projects/AutoDeploy/autodeploy/custom_model.pkl'
+        model_path: 'custom_model.pkl'
         model_file_type: 'pickle'
         version: '1.0.0'
         model_name: 'sklearn iris detection model.'
@@ -10,6 +10,9 @@ model:
         server:
                 name: 'autodeploy'
                 port: 8000
+dependency:
+        path: '/home/kartik/personal_projects/AutoDeploy/model_dependencies'
+
 input_schema:
         petal_length: 'float'
         petal_width: 'float'
@@ -21,11 +24,11 @@ out_schema:
         status: 'int'
 monitor:
         server:
-                name: 'rabbitmq'
+                name: 'localhost'
                 port: 5672
         data_drift:
                 name: 'KSDrift'
-                reference_data: '/home/kartik/personal_projects/AutoDeploy/artifacts/iris_reference.npy'
+                reference_data: 'iris_reference.npy'
                 type: 'info'
         custom_metric:
                 path: 'custom_metric'
