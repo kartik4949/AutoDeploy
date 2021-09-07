@@ -119,8 +119,8 @@ class PredictRouter:
   def get_out_response(self, model_output):
     ''' a helper function to get ouput response. '''
     # TODO: change status code.
-    return {'out': model_output[0],
-            'probablity': model_output[1], 'status': 200}
+    return {'out': model_output[1],
+            'probablity': model_output[0], 'status': 200}
 
   def register_router(self):
     ''' a main router registering funciton

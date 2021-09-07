@@ -112,7 +112,7 @@ class MonitorDriver(BaseMonitorService):
 
     input = self._get_array(body)
     input = np.asarray(input)
-
+    output = body['prediction']
     if self.drift_detection:
       drift_status = self.drift_detection.get_change(input)
       self.prometheus_metric.set_drift_status(drift_status)
@@ -128,7 +128,7 @@ class MonitorDriver(BaseMonitorService):
           f'Data Drift Detection {self.config.monitor.data_drift.name} detected: {drift_status}')
 
     # expose prometheus_metric metrics
-    self.prometheus_metric.expose(input)
+    self.prometheus_metric.expose(input, output)
 
   def _load_monitor_algorithm(self) -> Optional[Union[Monitor, None]]:
     reference_data = None

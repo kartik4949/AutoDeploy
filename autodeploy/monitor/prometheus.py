@@ -57,6 +57,10 @@ class PrometheusModelMetric:
     self.monitor_port = Info('monitor_port', 'monitor service port number')
     self.model_deployment_name = Info(
         'model_deployment_name', 'Name for model deployment.')
+    self.model_output_score = Gauge(
+        'model_output_score', 'This is gauge to output model score.')
+    self.data_drift_out = Gauge(
+        'data_drift_out', 'This is data drift output i.e binary.')
 
   def set_metrics_attributes(self):
     '''
@@ -74,11 +78,14 @@ class PrometheusModelMetric:
       _dict.update({k: str(v)})
     return _dict
 
-  def expose(self, input):
+  def expose(self, input, output):
     if self.drift_status:
       status = self.convert_str(self.drift_status)
       self.data_drift.info(status)
+      self.data_drift_out.set(self.drift_status['data']['is_drift'])
+
     self.monitor_state.state('up')
+    self.model_output_score.set(output)
     for metric in self.metric_list:
       result = metric(input)
       self._metrics[metric.__name__].set(result)
