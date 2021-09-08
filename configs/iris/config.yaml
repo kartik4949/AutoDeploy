@@ -31,7 +31,7 @@ monitor:
                 name: 'KSDrift'
                 reference_data: 'iris_reference.npy'
                 type: 'info'
-        custom_metrics: ['metric1', 'metric2']
+        custom_metrics: 'metric1'
         metrics:
                 average_per_day:
                         type: 'info'

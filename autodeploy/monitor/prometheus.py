@@ -59,7 +59,6 @@ class PrometheusModelMetric:
 
   def import_custom_metric_files(self):
     try:
-
       path = self.config.dependency.path
       sys.path.append(path)
       _py = glob.glob(os.path.join(path, '*.py'))
@@ -84,7 +83,7 @@ class PrometheusModelMetric:
         return _fxn_dict
       elif isinstance(self.custom_metric_fxn_name, str):
         try:
-          return [METRICS.module_dict[self.custom_metric_fxn_name]]
+          return METRICS.module_dict[self.custom_metric_fxn_name]
         except KeyError as ke:
           logger.error(
               f'{self.custom_metric_fxn_name} not found in {METRICS.keys()} keys')
@@ -153,8 +152,8 @@ class PrometheusModelMetric:
         for name, metric in self.custom_metrics.items():
           result = metric(input)
           self._metrics[name].set(result)
-      elif isinstance(self.custom_metrics, list):
-        result = self.custom_metrics[0](input)
+      elif callable(self.custom_metrics):
+        result = self.custom_metrics(input)
         self._metrics[self.custom_metric_fxn_name].set(result)
 
   def setup_custom_metric(self):
@@ -166,7 +165,7 @@ class PrometheusModelMetric:
       self.custom_metrics = custom_metrics
       for name, module in custom_metrics.items():
         self._metrics[name] = Gauge(name, 'N/A')
-    elif isinstance(custom_metrics, list):
+    elif callable(custom_metrics):
       self._metrics[self.custom_metric_fxn_name] = Gauge(
           self.custom_metric_fxn_name, 'N/A')
 
