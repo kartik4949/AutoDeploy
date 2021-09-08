@@ -12,7 +12,8 @@ model:
                 port: 8000
 dependency:
         path: '/home/kartik/personal_projects/AutoDeploy/model_dependencies'
-
+preprocess: 'custom_preprocess'
+postprocess: 'custom_postprocess'
 input_schema:
         petal_length: 'float'
         petal_width: 'float'
@@ -30,8 +31,7 @@ monitor:
                 name: 'KSDrift'
                 reference_data: 'iris_reference.npy'
                 type: 'info'
-        custom_metric:
-                path: 'custom_metric'
+        custom_metrics: 'metric1'
         metrics:
                 average_per_day:
                         type: 'info'
