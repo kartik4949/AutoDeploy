@@ -1,4 +1,8 @@
 from collections import defaultdict
+import os
+import operator
+import glob
+import sys
 import importlib
 from typing import Dict
 
@@ -6,6 +10,9 @@ from prometheus_client import Counter, Gauge, Summary, Info, Enum
 
 from monitor.drift_detection import drift_detection_algorithms
 from register import METRICS
+from logger import AppLogger
+
+logger = AppLogger(__name__).get_logger()
 
 
 _metric_types = {'gauge': Gauge, 'summary': Summary,
@@ -27,7 +34,8 @@ class PrometheusModelMetric:
   def __init__(self, config) -> None:
     self.config = config
     self._metrics = defaultdict()
-
+    self.custom_metric_fxn_name = config.monitor.get('custom_metrics', None)
+    self.custom_metrics = None
     self.data_drift = None
     data_drift_meta = self.config.monitor.get('data_drift', None)
     if data_drift_meta:
@@ -41,6 +49,55 @@ class PrometheusModelMetric:
       for k, v in metrics_meta.items():
         self._metrics.update(
             {k: _metric_types[v['type']](k, 'N/A')})
+
+  @staticmethod
+  def convert_python_path(file):
+    # TODO: check os.
+    file = file.split('.')[-2]
+    file = file.split('/')[-1]
+    return file
+
+  def import_custom_metric_files(self):
+    try:
+
+      path = self.config.dependency.path
+      sys.path.append(path)
+      _py = glob.glob(os.path.join(path, '*.py'))
+      for file in _py:
+        file = self.convert_python_path(file)
+        if 'metric' in file:
+          importlib.import_module(file)
+    except ImportError as ie:
+      logger.error('could not import dependency from given path.')
+      raise ImportError('could not import dependency from given path.')
+
+  def get_custom_metrics(self):
+    ''' a fxn to get custom metrics dict or list from model dependencies module. '''
+    _fxns = METRICS.module_dict
+    if self.custom_metric_fxn_name:
+      if isinstance(self.custom_metric_fxn_name, list):
+        _fxn_dict = {}
+        _fxn_metrics = operator.itemgetter(
+            *self.custom_metric_fxn_name)(METRICS.module_dict)
+        for i, name in enumerate(self.custom_metric_fxn_name):
+          _fxn_dict[name] = _fxn_metrics[i]
+        return _fxn_dict
+      elif isinstance(self.custom_metric_fxn_name, str):
+        try:
+          return [METRICS.module_dict[self.custom_metric_fxn_name]]
+        except KeyError as ke:
+          logger.error(
+              f'{self.custom_metric_fxn_name} not found in {METRICS.keys()} keys')
+          raise KeyError(
+              f'{self.custom_metric_fxn_name} not found in {METRICS.keys()} keys')
+      else:
+        logger.error(
+            f'wrong custom metric type {type(self.custom_metric_fxn_name)}, `list` or `str` expected.')
+        raise Exception(
+            f'wrong custom metric type {type(self.custom_metric_fxn_name)}, `list` or `str` expected.')
+    if _fxns:
+      return _fxns
+    return None
 
   def default_model_metric(self):
     '''
@@ -91,14 +148,27 @@ class PrometheusModelMetric:
       result = metric(input)
       self._metrics[metric.__name__].set(result)
 
+    if self.custom_metrics:
+      if isinstance(self.custom_metrics, dict):
+        for name, metric in self.custom_metrics.items():
+          result = metric(input)
+          self._metrics[name].set(result)
+      elif isinstance(self.custom_metrics, list):
+        result = self.custom_metrics[0](input)
+        self._metrics[self.custom_metric_fxn_name].set(result)
+
   def setup_custom_metric(self):
-    ''' a simple setup custom metric function to set 
+    ''' a simple setup custom metric function to set
     custom functions.
     '''
-    for name, module in METRICS.module_dict.items():
-      if module.__name__ not in self._metrics.keys():
-        self._metrics[module.__name__] = Gauge(module.__name__, 'N/A')
-      self.metric_list.append(module)
+    custom_metrics = self.get_custom_metrics()
+    if isinstance(custom_metrics, dict):
+      self.custom_metrics = custom_metrics
+      for name, module in custom_metrics.items():
+        self._metrics[name] = Gauge(name, 'N/A')
+    elif isinstance(custom_metrics, list):
+      self._metrics[self.custom_metric_fxn_name] = Gauge(
+          self.custom_metric_fxn_name, 'N/A')
 
   def set_drift_status(self, status):
     self.drift_status = status
@@ -109,7 +179,7 @@ class PrometheusModelMetric:
     metrics to PrometheusModelMetric class.
 
     '''
-    if self.config.monitor.get('custom_metric', None):
-      self.setup_custom_metric()
+    self.import_custom_metric_files()
+    self.setup_custom_metric()
     self.set_metrics_attributes()
     self.default_model_metric()
