@@ -19,7 +19,7 @@ A/B testing?
 
 What if you could only configure a single file and get up and running with a single command. **That is what AutoDeploy is!**
 
-Read our [documentation](https://www.google.com) to know how to get setup and get to serving your models.
+Read our [documentation](https://github.com/kartik4949/AutoDeploy/wiki) to know how to get setup and get to serving your models.
 
 # Feature Support.
 
