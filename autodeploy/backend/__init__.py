@@ -1,3 +1,3 @@
-from .rmq.client import RabbitMQClient
-from .rmq.server import RabbitMQConsume
-from .database import Database
+from ._rmq._client import RabbitMQClient
+from ._rmq._server import RabbitMQConsume
+from ._database import Database
