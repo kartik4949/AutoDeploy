@@ -16,6 +16,8 @@ services:
       - rabbitmq
     networks:
       - default
+    environment: 
+      - CONFIG=/app/${CONFIG}
 
   monitor:
     image: monitor:latest
@@ -25,6 +27,8 @@ services:
       - rabbitmq
     networks:
       - default
+    environment: 
+      - CONFIG=/app/${CONFIG}
   
   prometheus:
     image: prom/prometheus:latest
