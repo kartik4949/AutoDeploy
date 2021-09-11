@@ -16,8 +16,16 @@ services:
       - rabbitmq
     networks:
       - default
-    environment: 
-        - CONFIG=/app/configs/classification/config.yaml
+
+  monitor:
+    image: monitor:latest
+    ports:
+      - "8001:8001"
+    links: 
+      - rabbitmq
+    networks:
+      - default
+  
   prometheus:
     image: prom/prometheus:latest
     ports:
