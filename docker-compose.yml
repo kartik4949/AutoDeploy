@@ -16,7 +16,8 @@ services:
       - rabbitmq
     networks:
       - default
-  
+    environment: 
+        - CONFIG=/app/configs/classification/config.yaml
   prometheus:
     image: prom/prometheus:latest
     ports:
