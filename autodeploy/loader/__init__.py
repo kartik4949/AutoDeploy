@@ -1,1 +1,1 @@
-from .model_loader import ModelLoader
+from ._model_loader import ModelLoader

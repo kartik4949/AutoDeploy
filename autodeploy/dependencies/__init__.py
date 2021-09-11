@@ -1,1 +1,1 @@
-from .dependency import LoadDependency
+from ._dependency import LoadDependency

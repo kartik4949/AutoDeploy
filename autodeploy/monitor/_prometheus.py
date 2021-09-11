@@ -8,7 +8,7 @@ from typing import Dict
 
 from prometheus_client import Counter, Gauge, Summary, Info, Enum
 
-from monitor.drift_detection import drift_detection_algorithms
+from monitor._drift_detection import drift_detection_algorithms
 from register import METRICS
 from logger import AppLogger
 

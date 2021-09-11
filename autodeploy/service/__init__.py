@@ -1,1 +1,1 @@
-from .infere import *
+from ._infere import *

@@ -10,7 +10,7 @@ from PIL import Image
 import numpy as np
 
 from logger import AppLogger
-from database import database
+from database import _database as database
 
 # datatypes mapper dictionary.
 DATATYPES = {'string': str, 'int': int, 'float': float, 'bool': bool}
