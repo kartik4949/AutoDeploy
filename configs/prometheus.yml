@@ -11,4 +11,5 @@ scrape_configs:
   honor_labels: true
   static_configs:
   - targets:
-    - autodeploy:8000  # metrics from IrisClassifier service
+    - autodeploy:8000  # metrics from autodeploy service
+    - autodeploy:8001  # metrics from monitor service
