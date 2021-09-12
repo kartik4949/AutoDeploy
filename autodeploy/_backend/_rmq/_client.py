@@ -29,20 +29,6 @@ class RabbitMQClient(HeartBeatMixin):
     self.channel.basic_qos(prefetch_count=1)
     self.beat()
 
-  @staticmethod
-  def _beat(connection):
-    while True:
-      # TODO: remove hardcode
-      sleep(5)
-      connection.process_data_events()
-
-  def beat(self):
-    ''' process_data_events preodically. 
-    TODO: hackish way, think other way.
-    '''
-    heartbeat = threading.Thread(target=self._beat, args=(self.connection,), daemon=True)
-    heartbeat.start()
-
   def publish_rbmq(self, body: Dict):
     self.channel.basic_publish(
         exchange='',
