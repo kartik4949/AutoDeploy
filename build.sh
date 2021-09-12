@@ -27,4 +27,4 @@ fi
 # Begin script in case all parameters are correct
 echo "$parameterR"
 docker build -t autodeploy --build-arg MODEL_REQ=$parameterR -f Dockerfile .
-#docker build -t monitor --build-arg MODEL_REQ=$parameterR  -f MonitorDockerfile .
+docker build -t monitor --build-arg MODEL_REQ=$parameterR  -f MonitorDockerfile .
