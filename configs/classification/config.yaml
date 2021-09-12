@@ -18,7 +18,7 @@ out_schema:
         probablity: 'float'
         status: 'int'
 dependency:
-        path: './model_dependencies'
+        path: '/app/model_dependencies'
 monitor:
         server:
                 name: 'rabbitmq'
