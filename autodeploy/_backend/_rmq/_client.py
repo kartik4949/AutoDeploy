@@ -1,14 +1,14 @@
 import json
 import asyncio
 from contextlib import suppress
-from time import sleep
-import threading
 import uuid
 from typing import Dict
 
 import pika
 
-class RabbitMQClient:
+from _backend._heartbeat import HeartBeatMixin
+
+class RabbitMQClient(HeartBeatMixin):
   def __init__(self, config):
     self.host = config.monitor.server.name
     self.port = config.monitor.server.port
