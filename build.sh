@@ -5,7 +5,7 @@
 helpFunction()
 {
    echo ""
-   echo "Usage: $0 -r /app/model_dependcies/reqs.txt"
+   echo "Usage: $0 -r /app/model_dependencies/reqs.txt"
    echo -e "\t-r Path to model dependencies reqs txt."
    exit 1 
 }
