@@ -11,6 +11,7 @@ model:
         server:
                 name: 'autodeploy'
                 port: 8000
+preprocess: 'custom_preprocess_classification'
 input_schema:
         input: 'string'
 out_schema:
@@ -18,7 +19,7 @@ out_schema:
         probablity: 'float'
         status: 'int'
 dependency:
-        path: './model_dependencies'
+        path: '/app/model_dependencies'
 monitor:
         server:
                 name: 'rabbitmq'
@@ -27,8 +28,7 @@ monitor:
                 name: 'KSDrift'
                 reference_data: 'structured_ref.npy'
                 type: 'info'
-        custom_metric:
-                path: 'custom'
+        custom_metrics: 'image_brightness'
         metrics:
                 average_per_day:
                         type: 'info'

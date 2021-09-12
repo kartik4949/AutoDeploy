@@ -11,7 +11,7 @@ model:
                 name: 'autodeploy'
                 port: 8000
 dependency:
-        path: '/home/kartik/personal_projects/AutoDeploy/model_dependencies'
+        path: '/app/model_dependencies'
 preprocess: 'custom_preprocess'
 postprocess: 'custom_postprocess'
 input_schema:
@@ -25,7 +25,7 @@ out_schema:
         status: 'int'
 monitor:
         server:
-                name: 'localhost'
+                name: 'rabbitmq'
                 port: 5672
         data_drift:
                 name: 'KSDrift'

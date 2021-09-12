@@ -8,7 +8,7 @@ from pydantic import create_model
 
 from typing import Any, Dict, Optional
 
-from .database import Base
+from database._database import Base
 from utils import utils
 from config import Config
 

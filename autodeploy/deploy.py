@@ -14,16 +14,16 @@ from prometheus_fastapi_instrumentator import Instrumentator
 from fastapi import Depends, FastAPI, Request, HTTPException
 from sqlalchemy.orm import Session
 
+from _schema import UserIn, UserOut
 from config.config import Config
 from utils import utils
 from handlers import Handler, ModelException
-from schema import schema
 from logger import AppLogger
-from routers.predict import PredictRouter
-from routers.predict import router as prediction_router
-from routers.model import ModelDetailRouter
-from routers.model import router as model_detial_router
-from routers.security import router as auth_router
+from routers import PredictRouter
+from routers import prediction_router
+from routers import ModelDetailRouter
+from routers import model_detail_router
+from routers import auth_router
 from base import BaseDriverService
 
 
@@ -102,9 +102,9 @@ class DeployDriver(BaseDriverService):
 
     '''
     # create input and output schema for model endpoint api.
-    input_model_schema = schema.UserIn(
+    input_model_schema = UserIn(
         self.user_config)
-    output_model_schema = schema.UserOut(
+    output_model_schema = UserOut(
         self.user_config)
     return (input_model_schema, output_model_schema)
 
@@ -134,7 +134,7 @@ class DeployDriver(BaseDriverService):
     '''
     a helper function to register routers in the app.
     '''
-    self._app_include([prediction_router, model_detial_router, auth_router])
+    self._app_include([prediction_router, model_detail_router, auth_router])
 
   def run(self):
     '''

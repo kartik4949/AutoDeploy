@@ -1,5 +1,5 @@
 ''' A simple Model Loader Class. '''
-from loader.loaders import *
+from loader._loaders import *
 from logger import AppLogger
 
 ALLOWED_MODEL_TYPES = ['pickle', 'hdf5', 'joblib', 'onnx']

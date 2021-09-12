@@ -15,11 +15,11 @@ from prometheus_client import start_http_server
 from base import BaseMonitorService
 from config import Config
 from monitor import Monitor
-from database import models
+from database import _models as models
 from logger import AppLogger
 from monitor import PrometheusModelMetric
-from monitor.drift_detection import drift_detection_algorithms
-from backend import RabbitMQConsume, Database
+from monitor import drift_detection_algorithms
+from _backend import RabbitMQConsume, Database
 
 applogger = AppLogger(__name__)
 logger = applogger.get_logger()

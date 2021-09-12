@@ -19,16 +19,14 @@ from sqlalchemy.orm import Session
 from config.config import Config
 from utils import utils
 from handlers import Handler, ModelException
-from schema import schema
 from loader import ModelLoader
 from service.builder import InfereBuilder
 from logger import AppLogger
-from database import database, models
+from database import _database as database, _models as models
 from dependencies import LoadDependency
-
 from logger import AppLogger
 from security.scheme import oauth2_scheme
-from backend import Database, RabbitMQClient
+from _backend import Database, RabbitMQClient
 
 
 router = APIRouter()

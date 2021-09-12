@@ -1,5 +1,5 @@
 ''' A simple database class utility. '''
-from database import database, models
+from database import _database as database, _models as models
 from logger import AppLogger
 
 applogger = AppLogger(__name__)

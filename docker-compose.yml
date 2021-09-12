@@ -16,6 +16,19 @@ services:
       - rabbitmq
     networks:
       - default
+    environment: 
+      - CONFIG=/app/${CONFIG}
+
+  monitor:
+    image: monitor:latest
+    ports:
+      - "8001:8001"
+    links: 
+      - rabbitmq
+    networks:
+      - default
+    environment: 
+      - CONFIG=/app/${CONFIG}
   
   prometheus:
     image: prom/prometheus:latest
@@ -26,3 +39,9 @@ services:
       - autodeploy
     volumes: 
       - ./configs/prometheus.yml:/etc/prometheus/prometheus.yml
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    links: 
+      - prometheus

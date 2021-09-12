@@ -4,7 +4,7 @@ from typing import Any, Dict, Text
 import numpy as np
 
 from config import Config
-from monitor.drift_detection import DriftDetectionAlgorithmsMixin
+from monitor import DriftDetectionAlgorithmsMixin
 
 
 class Monitor(DriftDetectionAlgorithmsMixin):
