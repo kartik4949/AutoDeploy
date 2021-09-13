@@ -101,7 +101,7 @@ class PredictRouter(RabbitMQClient, Database):
     ''' a helper function to get ouput response. '''
     # TODO: change status code.
     return {'out': model_output[1],
-            'probablity': model_output[0], 'status': 200}
+            'probability': model_output[0], 'status': 200}
 
   def register_router(self):
     ''' a main router registering funciton
@@ -163,7 +163,7 @@ class PredictRouter(RabbitMQClient, Database):
 
       _time_stamp = datetime.now()
       _request_store = {'time_stamp': str(
-          _time_stamp), 'prediction': model_output[0], 'is_drift': False}
+          _time_stamp), 'prediction': out_response['probability'], 'is_drift': False}
       _request_store.update(dict(payload))
       self.publish_rbmq(_request_store)
 

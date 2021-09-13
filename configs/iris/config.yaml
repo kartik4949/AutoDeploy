@@ -21,7 +21,7 @@ input_schema:
         sepal_width: 'float'
 out_schema:
         out: 'int'
-        probablity: 'float'
+        probability: 'float'
         status: 'int'
 monitor:
         server:

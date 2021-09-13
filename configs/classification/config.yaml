@@ -15,7 +15,7 @@ input_schema:
         input: 'string'
 out_schema:
         out: 'int'
-        probablity: 'float'
+        probability: 'float'
         status: 'int'
 dependency:
         path: '/app/model_dependencies'
