@@ -12,11 +12,12 @@ model:
                 name: 'autodeploy'
                 port: 8000
 preprocess: 'custom_preprocess_classification'
+postprocess: 'custom_postprocess'
 input_schema:
         input: 'string'
 out_schema:
         out: 'int'
-        probability: 'float'
+        confidence: 'float'
         status: 'int'
 dependency:
         path: '/app/model_dependencies'
