@@ -96,6 +96,15 @@ class MonitorDriver(RabbitMQConsume, BaseMonitorService, Database):
 
     return [input]
 
+  def _convert_str_to_blob(self, body):
+    _body = {}
+    for k, v in body.items():
+      if isinstance(v, str):
+        _body[k] = bytes(v, 'utf-8')
+      else:
+        _body[k] = v
+    return _body
+
   def _callback(self, ch: Any, method: Any,
                 properties: Any, body: Dict) -> None:
     '''
@@ -121,6 +130,8 @@ class MonitorDriver(RabbitMQConsume, BaseMonitorService, Database):
       body['is_drift'] = drift_status['data']['is_drift']
 
     # store request data and model prediction in database.
+    if self.config.model.input_type == 'serialized':
+      body = self._convert_str_to_blob(body)
     request_store = models.Requests(**dict(body))
     self.database.store_request(request_store)
     if self.drift_detection:
