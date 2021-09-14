@@ -88,8 +88,14 @@ class PredictRouter(RabbitMQClient, Database):
     self.bind()
 
     # create model loader instance.
-    model_path = os.path.join(self.user_config.dependency.path,
-                              self.user_config.model.model_path)
+    if isinstance(self.user_config.model.model_path, str):
+      model_path = os.path.join(self.user_config.dependency.path,
+                                self.user_config.model.model_path)
+    elif isinstance(self.user_config.model.model_path, list):
+      model_path = [os.path.join(self.user_config.dependency.path, _model_path) for _model_path in self.user_config.model.model_path ]
+    else:
+      logger.error('Invalid model path!!')
+      raise Exception('Invalid model path!!')
     _model_loader = ModelLoader(
         model_path, self.user_config.model.model_file_type)
     __model = _model_loader.load()
