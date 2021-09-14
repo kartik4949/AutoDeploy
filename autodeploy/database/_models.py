@@ -47,7 +47,6 @@ class Requests(Base):
   prediction = Column(Integer)
   is_drift = Column(Boolean, default=True)
 
-
 # TODO: create dynamic input attributes
 class RequestMonitor:
   def __init__(self, config):

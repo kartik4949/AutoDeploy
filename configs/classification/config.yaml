@@ -1,3 +1,5 @@
+dependency:
+        path: '/app/model_dependencies'
 model:
         model_type: 'onnx'
         model_path: 'horse_zebra.onnx'
@@ -13,14 +15,13 @@ model:
                 port: 8000
 preprocess: 'custom_preprocess_classification'
 postprocess: 'custom_postprocess'
+
 input_schema:
         input: 'string'
 out_schema:
         out: 'int'
         confidence: 'float'
         status: 'int'
-dependency:
-        path: '/app/model_dependencies'
 monitor:
         server:
                 name: 'rabbitmq'
