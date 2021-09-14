@@ -62,7 +62,7 @@
 			},
 			"id": 10,
 			"options": {
-				"content": "# Model Predictions\n\nModel Predictions which will be monitored are confidence.\nIts part of model ai exaplainability.",
+				"content": "# Model confidence\n\nModel Predictions which will be monitored are confidence.\nIts part of model ai exaplainability.",
 				"mode": "markdown"
 			},
 			"pluginVersion": "8.1.2",
@@ -263,24 +263,6 @@
 		},
 		{
 			"datasource": null,
-			"gridPos": {
-				"h": 9,
-				"w": 5,
-				"x": 0,
-				"y": 11
-			},
-			"id": 12,
-			"options": {
-				"content": "# Request Throughput\n\n2xx status codes denote a successful model\nprediction.\n\n4xx status codes are common when clients\nPOST data that does not meet the expected\nschema.\n\nWe calculate the success rate as the percentage\nof HTTP requests that do not return a 5xx code.",
-				"mode": "markdown"
-			},
-			"pluginVersion": "8.1.2",
-			"timeFrom": null,
-			"timeShift": null,
-			"type": "text"
-		},
-		{
-			"datasource": null,
 			"fieldConfig": {
 				"defaults": {
 					"mappings": [],
@@ -310,8 +292,8 @@
 			},
 			"gridPos": {
 				"h": 9,
-				"w": 4,
-				"x": 5,
+				"w": 9,
+				"x": 0,
 				"y": 11
 			},
 			"id": 14,
@@ -340,7 +322,7 @@
 			],
 			"timeFrom": null,
 			"timeShift": null,
-			"title": "HTTP Success Rate (30m avg)",
+			"title": "API  Endpoint Success Rate",
 			"type": "gauge"
 		},
 		{
@@ -444,25 +426,6 @@
 		},
 		{
 			"datasource": null,
-			"description": "",
-			"gridPos": {
-				"h": 9,
-				"w": 5,
-				"x": 0,
-				"y": 20
-			},
-			"id": 20,
-			"options": {
-				"content": "# Request Latencies\n\nWe have two SLOs for API latency:\n- Average latency SLO is breached if p50\nlatencies exceed 50ms for 5 minutes.\n- Extreme latency SLO is breached if p99\nlatencies exceed 300ms for 5 minutes.        ",
-				"mode": "markdown"
-			},
-			"pluginVersion": "8.1.2",
-			"timeFrom": null,
-			"timeShift": null,
-			"type": "text"
-		},
-		{
-			"datasource": null,
 			"fieldConfig": {
 				"defaults": {
 					"mappings": [],
@@ -486,8 +449,8 @@
 			},
 			"gridPos": {
 				"h": 9,
-				"w": 4,
-				"x": 5,
+				"w": 9,
+				"x": 0,
 				"y": 20
 			},
 			"id": 31,
@@ -518,7 +481,7 @@
 			],
 			"timeFrom": null,
 			"timeShift": null,
-			"title": "Request Size (30m avg)",
+			"title": "Average Request MBs",
 			"type": "stat"
 		},
 		{
@@ -592,7 +555,7 @@
 			"timeFrom": null,
 			"timeRegions": [],
 			"timeShift": null,
-			"title": "Latency",
+			"title": "Latency (ms)",
 			"tooltip": {
 				"shared": true,
 				"sort": 0,
@@ -630,24 +593,6 @@
 			}
 		},
 		{
-			"datasource": null,
-			"gridPos": {
-				"h": 9,
-				"w": 9,
-				"x": 0,
-				"y": 29
-			},
-			"id": 29,
-			"options": {
-				"content": "# Request Size\n\nThis visualizes the request body sizes for\nthe model predict route. We expect the request\nbody to contain a dictionary with 11 keys with \nall values being floats.         ",
-				"mode": "markdown"
-			},
-			"pluginVersion": "8.1.2",
-			"timeFrom": null,
-			"timeShift": null,
-			"type": "text"
-		},
-		{
 			"aliasColors": {},
 			"bars": false,
 			"dashLength": 10,
@@ -662,9 +607,9 @@
 			"fill": 1,
 			"fillGradient": 0,
 			"gridPos": {
-				"h": 9,
-				"w": 15,
-				"x": 9,
+				"h": 11,
+				"w": 23,
+				"x": 0,
 				"y": 29
 			},
 			"hiddenSeries": false,
@@ -759,5 +704,5 @@
 	"timezone": "",
 	"title": "Model Monitoring1",
 	"uid": "JIdxtgSnk1",
-	"version": 2
+	"version": 3
 }
