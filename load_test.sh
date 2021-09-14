@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# docker compose commands to start the autodeploy service.
+# load testing bash script
 helpFunction()
 {
    echo ""
