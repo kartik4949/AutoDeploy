@@ -182,6 +182,9 @@ class MonitorDriver(RabbitMQConsume, BaseMonitorService, Database):
     self.prometheus_metric.monitor_port.info(
         {'model_monitoring_port': str(self.model_metric_port)})
 
+    # setup database i.e connect and bind.
+    self.database.setup()
+
   def __call__(self) -> None:
     '''
     __call__ for execution `start_consuming` method for consuming messages
@@ -193,7 +196,6 @@ class MonitorDriver(RabbitMQConsume, BaseMonitorService, Database):
 
     '''
     logger.info(' [*] Waiting for messages. To exit press CTRL+C')
-    self.database.setup()
     try:
       self.channel.start_consuming()
     except Exception as e:
