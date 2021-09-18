@@ -12,10 +12,12 @@ from logger import AppLogger
 
 logger = AppLogger(__name__).get_logger()
 
+
 class RabbitMQClient(HeartBeatMixin):
   def __init__(self, config):
     self.host = config.monitor.server.name
     self.port = config.monitor.server.port
+
     self.retries = 2
 
   def connect(self):

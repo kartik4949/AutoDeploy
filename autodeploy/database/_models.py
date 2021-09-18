@@ -2,6 +2,7 @@
 from os import path, environ
 
 from sqlalchemy import Boolean, Column, Integer, String, Float, BLOB
+
 from pydantic import BaseModel
 from pydantic.fields import ModelField
 from pydantic import create_model
@@ -46,16 +47,3 @@ class Requests(Base):
   time_stamp = Column(String)
   prediction = Column(Integer)
   is_drift = Column(Boolean, default=True)
-
-# TODO: create dynamic input attributes
-class RequestMonitor:
-  def __init__(self, config):
-    _default_attr = {
-        'time_stamp': (
-            str, ...), 'prediction': (
-            int, ...), 'is_drift': (
-            bool, ...)}
-    self._model_attr = utils.annotator(dict(config.input_schema))
-    self._model_attr.update(_default_attr)
-    self.ModelMonitorSchema = create_model(
-        'ModelMonitorSchema', **self._model_attr)

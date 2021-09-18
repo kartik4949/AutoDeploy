@@ -55,4 +55,3 @@ class OnnxInfere(BaseInfere):
     pred_onx = self.model.run(
         [self.label_name], {self.input_name: [input]})[0]
     return pred_onx
-    

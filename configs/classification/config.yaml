@@ -14,6 +14,7 @@ model:
                 port: 8000
 preprocess: 'custom_preprocess_classification'
 postprocess: 'custom_postprocess'
+
 input_schema:
         input: 'string'
 out_schema:
@@ -26,6 +27,10 @@ monitor:
         server:
                 name: 'rabbitmq'
                 port: 5672        
+        data_drift:
+                name: 'KSDrift'
+                reference_data: 'structured_ref.npy'
+                type: 'info'
         custom_metrics: 'image_brightness'
         metrics:
                 average_per_day:

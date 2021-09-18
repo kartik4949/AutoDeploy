@@ -83,7 +83,6 @@ class PredictRouter(RabbitMQClient, Database):
 
     if 'number' not in _out_prop['confidence']['type']:
       raise Exception('confidence should be a float type in out schema')
-
     # create database connection.
     self.bind()
 
@@ -119,7 +118,7 @@ class PredictRouter(RabbitMQClient, Database):
     # TODO: change status code.
     return {'out': model_output[1],
             'confidence': model_output[0], 'status': 200}
-
+  
   def register_router(self):
     ''' a main router registering funciton
     which registers the prediction service to
@@ -182,8 +181,9 @@ class PredictRouter(RabbitMQClient, Database):
 
       _time_stamp = datetime.now()
       _request_store = {'time_stamp': str(
+
           _time_stamp), 'prediction': out_response['confidence'], 'is_drift': False}
       _request_store.update(dict(payload))
       self.publish_rbmq(_request_store)
-
+      
       return out_response
