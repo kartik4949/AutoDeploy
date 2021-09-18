@@ -70,15 +70,31 @@ class PredictRouter(RabbitMQClient, Database):
     Args:
       schemas (tuple): a user input and output schema tuple.
     '''
+    if self.user_config.model.model_type == 'onnx' and not self.user_config.get('postprocess', None):
+      logger.error('Postprocess is required in model type `ONNX`.')
+      raise Exception('Postprocess is required in model type `ONNX`.')
 
     self.input_model_schema = schemas[0]
     self.output_model_schema = schemas[1]
+    _out_prop = self.output_model_schema.UserOutputSchema.schema()['properties']
+
+    if 'confidence' not in _out_prop.keys():
+      raise Exception('confidence is required in out schema.')
+
+    if 'number' not in _out_prop['confidence']['type']:
+      raise Exception('confidence should be a float type in out schema')
     # create database connection.
     self.bind()
 
     # create model loader instance.
-    model_path = os.path.join(self.user_config.dependency.path,
-                              self.user_config.model.model_path)
+    if isinstance(self.user_config.model.model_path, str):
+      model_path = os.path.join(self.user_config.dependency.path,
+                                self.user_config.model.model_path)
+    elif isinstance(self.user_config.model.model_path, list):
+      model_path = [os.path.join(self.user_config.dependency.path, _model_path) for _model_path in self.user_config.model.model_path ]
+    else:
+      logger.error('Invalid model path!!')
+      raise Exception('Invalid model path!!')
     _model_loader = ModelLoader(
         model_path, self.user_config.model.model_file_type)
     __model = _model_loader.load()
@@ -101,8 +117,8 @@ class PredictRouter(RabbitMQClient, Database):
     ''' a helper function to get ouput response. '''
     # TODO: change status code.
     return {'out': model_output[1],
-            'probablity': model_output[0], 'status': 200}
-
+            'confidence': model_output[0], 'status': 200}
+  
   def register_router(self):
     ''' a main router registering funciton
     which registers the prediction service to
@@ -154,6 +170,8 @@ class PredictRouter(RabbitMQClient, Database):
             out_response = postprocess_fxn(model_output, cache)
           else:
             out_response = postprocess_fxn(model_output)
+        else:
+          out_response = self.get_out_response(model_output)
 
       except BaseException:
         logger.error('uncaught exception: %s', traceback.format_exc())
@@ -163,10 +181,9 @@ class PredictRouter(RabbitMQClient, Database):
 
       _time_stamp = datetime.now()
       _request_store = {'time_stamp': str(
-          _time_stamp), 'prediction': model_output[0], 'is_drift': False}
+
+          _time_stamp), 'prediction': out_response['confidence'], 'is_drift': False}
       _request_store.update(dict(payload))
       self.publish_rbmq(_request_store)
-
-      if not postprocess_fxn:
-        out_response = self.get_out_response(model_output)
+      
       return out_response

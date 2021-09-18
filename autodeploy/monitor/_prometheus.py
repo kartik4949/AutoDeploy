@@ -161,8 +161,8 @@ class PrometheusModelMetric:
     custom functions.
     '''
     custom_metrics = self.get_custom_metrics()
+    self.custom_metrics = custom_metrics
     if isinstance(custom_metrics, dict):
-      self.custom_metrics = custom_metrics
       for name, module in custom_metrics.items():
         self._metrics[name] = Gauge(name, 'N/A')
     elif callable(custom_metrics):

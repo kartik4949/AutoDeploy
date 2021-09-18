@@ -39,6 +39,7 @@ services:
       - autodeploy
     volumes: 
       - ./configs/prometheus.yml:/etc/prometheus/prometheus.yml
+
   grafana:
     image: grafana/grafana:latest
     ports:

@@ -1,7 +1,8 @@
 ''' a simple pydantic and sqlalchemy models utilities. '''
 from os import path, environ
 
-from sqlalchemy import Boolean, Column, Integer, String, Float
+from sqlalchemy import Boolean, Column, Integer, String, Float, BLOB
+
 from pydantic import BaseModel
 from pydantic.fields import ModelField
 from pydantic import create_model
@@ -26,6 +27,11 @@ config = Config(config_path).get_config()
 def set_dynamic_inputs(cls):
   ''' a decorator to set dynamic model attributes. '''
   for k, v in dict(config.input_schema).items():
+    if config.model.input_type == 'serialized':
+      if v == 'string':
+        setattr(cls, k, Column(BLOB))
+        continue
+
     setattr(cls, k, Column(SQLTYPE_MAPPER[v]))
   return cls
 
@@ -41,17 +47,3 @@ class Requests(Base):
   time_stamp = Column(String)
   prediction = Column(Integer)
   is_drift = Column(Boolean, default=True)
-
-
-# TODO: create dynamic input attributes
-class RequestMonitor:
-  def __init__(self, config):
-    _default_attr = {
-        'time_stamp': (
-            str, ...), 'prediction': (
-            int, ...), 'is_drift': (
-            bool, ...)}
-    self._model_attr = utils.annotator(dict(config.input_schema))
-    self._model_attr.update(_default_attr)
-    self.ModelMonitorSchema = create_model(
-        'ModelMonitorSchema', **self._model_attr)

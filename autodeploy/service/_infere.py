@@ -54,6 +54,4 @@ class OnnxInfere(BaseInfere):
     assert type(input) in [np.ndarray, list], 'Model input are not valid!'
     pred_onx = self.model.run(
         [self.label_name], {self.input_name: [input]})[0]
-    pred_onx = pred_onx.tolist()
-    out_class = np.argmax(pred_onx[0])
-    return pred_onx[0][out_class], out_class
+    return pred_onx
