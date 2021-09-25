@@ -8,7 +8,7 @@ import numpy as np
 class RedisDB:
   def __init__(self, config) -> None:
     self.config = config
-    self.redis = redis.Redis()
+    self.redis = redis.Redis(host = self.config.REDIS_SERVER, port = self.config.REDIS_PORT, db=0)
 
   def encode(self, input, shape):
     bytes = input.tobytes()
