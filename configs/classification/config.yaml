@@ -1,6 +1,7 @@
 model:
         model_type: 'onnx'
-        model_path: 'horse_zebra.onnx'
+        model_path: ['horse_zebra.onnx', 'horse_zebra.onnx']
+        ab_split: [80,20]
         model_file_type: 'onnx'
         version: '1.0.0'
         model_name: 'computer vision classification model.'

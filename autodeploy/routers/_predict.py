@@ -80,7 +80,6 @@ class PredictRouter(RabbitMQClient, Database):
     else:
       logger.error('Invalid model path!!')
       raise Exception('Invalid model path!!')
-
     _model_loader = ModelLoader(
         model_path, self.user_config.model.model_file_type)
     __model = _model_loader.load()
