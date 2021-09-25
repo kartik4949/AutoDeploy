@@ -7,11 +7,7 @@ model:
         endpoint: 'predict'
         protected: 0
         input_type: 'serialized'
-        input_dtype: 'uint8'
         input_shape: [224, 224, 3]
-        server:
-                name: 'autodeploy'
-                port: 8000
 preprocess: 'custom_preprocess_classification'
 postprocess: 'custom_postprocess'
 
@@ -22,11 +18,8 @@ out_schema:
         confidence: 'float'
         status: 'int'
 dependency:
-        path: '/home/kartik/personal_projects/AutoDeploy/model_dependencies'
+        path: '/app/model_dependencies'
 monitor:
-        server:
-                name: 'localhost'
-                port: 5672        
         data_drift:
                 name: 'KSDrift'
                 reference_data: 'structured_ref.npy'
