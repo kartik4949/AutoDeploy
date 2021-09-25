@@ -31,6 +31,10 @@ A/B testing?
 - My models use different frameworks. Am i covered?
 ... and many more.
 
+# Architecture
+<img src="https://github.com/kartik4949/AutoDeploy/blob/main/assests/AutoDeploy_architecture.png" alt="AutoDeploy architecture"/>
+
+
 What if you could only configure a single file and get up and running with a single command. **That is what AutoDeploy is!**
 
 Read our [documentation](https://github.com/kartik4949/AutoDeploy/wiki) to know how to get setup and get to serving your models.
