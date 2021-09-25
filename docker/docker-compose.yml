@@ -14,6 +14,7 @@ services:
       - "8000:8000"
     links: 
       - rabbitmq
+      - prediction
     networks:
       - default
     environment: 
@@ -38,7 +39,7 @@ services:
       - rabbitmq
       - autodeploy
     volumes: 
-      - ./configs/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ../configs/prometheus.yml:/etc/prometheus/prometheus.yml
 
   grafana:
     image: grafana/grafana:latest
@@ -46,3 +47,20 @@ services:
       - "3000:3000"
     links: 
       - prometheus
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    restart: always
+
+  prediction:
+    image: prediction:latest
+    ports:
+      - "8009:8009"
+    links: 
+      - redis
+    networks:
+      - default
+    environment: 
+      - CONFIG=/app/${CONFIG}
