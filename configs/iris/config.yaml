@@ -7,9 +7,6 @@ model:
         endpoint: 'predict'
         protected: 0
         input_type: 'structured'
-        server:
-                name: 'autodeploy'
-                port: 8000
 dependency:
         path: '/app/model_dependencies'
 preprocess: 'custom_preprocess'
@@ -24,9 +21,6 @@ out_schema:
         confidence: 'float'
         status: 'int'
 monitor:
-        server:
-                name: 'rabbitmq'
-                port: 5672
         data_drift:
                 name: 'KSDrift'
                 reference_data: 'iris_reference.npy'

@@ -15,10 +15,9 @@ logger = AppLogger(__name__).get_logger()
 
 class RabbitMQClient(HeartBeatMixin):
   def __init__(self, config):
-    self.host = config.monitor.server.name
-    self.port = config.monitor.server.port
-
-    self.retries = 2
+    self.host = config.RABBITMQ_HOST
+    self.port = config.RABBITMQ_PORT
+    self.retries = config.RETRIES
 
   def connect(self):
     ''' a simple function to get connection to rmq '''

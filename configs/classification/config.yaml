@@ -1,7 +1,6 @@
 model:
         model_type: 'onnx'
-        model_path: ['horse_zebra.onnx', 'horse_zebra.onnx']
-        ab_split: [80,20]
+        model_path: 'horse_zebra.onnx'
         model_file_type: 'onnx'
         version: '1.0.0'
         model_name: 'computer vision classification model.'
@@ -9,9 +8,6 @@ model:
         protected: 0
         input_type: 'serialized'
         input_shape: [224, 224, 3]
-        server:
-                name: 'autodeploy'
-                port: 8000
 preprocess: 'custom_preprocess_classification'
 postprocess: 'custom_postprocess'
 
@@ -24,9 +20,6 @@ out_schema:
 dependency:
         path: '/app/model_dependencies'
 monitor:
-        server:
-                name: 'rabbitmq'
-                port: 5672        
         data_drift:
                 name: 'KSDrift'
                 reference_data: 'structured_ref.npy'
