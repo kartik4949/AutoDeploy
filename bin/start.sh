@@ -25,5 +25,5 @@ fi
 
 # Begin script in case all parameters are correct
 echo "$parameterF"
-CONFIG=$parameterF docker-compose build
-CONFIG=$parameterF docker-compose up
+CONFIG=$parameterF docker-compose -f docker/docker-compose.yml build
+CONFIG=$parameterF docker-compose -f docker/docker-compose.yml up
