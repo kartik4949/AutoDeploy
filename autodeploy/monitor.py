@@ -13,7 +13,7 @@ from sqlalchemy.orm import Session
 from prometheus_client import start_http_server
 
 from base import BaseMonitorService
-from config import Config
+from config import Config, InternalConfig
 from monitor import Monitor
 from database import _models as models
 from logger import AppLogger
@@ -63,10 +63,11 @@ class MonitorDriver(RabbitMQConsume, BaseMonitorService, Database):
 
   def __init__(self, config) -> None:
     self.config = Config(config).get_config()
-    super().__init__(self.config)
-    self.queue = 'monitor'
+    self.internal_config = InternalConfig()
+    super().__init__(self.internal_config)
+    self.queue = self.internal_config.RABBITMQ_QUEUE
     self.drift_detection = None
-    self.model_metric_port = 8001
+    self.model_metric_port = self.internal_config.MONITOR_PORT
     self.database = Database(config)
 
   def _get_array(self, body: Dict) -> List:

@@ -1,0 +1,66 @@
+version: "2.1"
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    restart: always
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+
+  autodeploy:
+    image: autodeploy:latest
+    ports:
+      - "8000:8000"
+    links: 
+      - rabbitmq
+      - prediction
+    networks:
+      - default
+    environment: 
+      - CONFIG=/app/${CONFIG}
+
+  monitor:
+    image: monitor:latest
+    ports:
+      - "8001:8001"
+    links: 
+      - rabbitmq
+    networks:
+      - default
+    environment: 
+      - CONFIG=/app/${CONFIG}
+  
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    links: 
+      - rabbitmq
+      - autodeploy
+    volumes: 
+      - ../configs/prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    links: 
+      - prometheus
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    restart: always
+
+  prediction:
+    image: prediction:latest
+    ports:
+      - "8009:8009"
+    links: 
+      - redis
+    networks:
+      - default
+    environment: 
+      - CONFIG=/app/${CONFIG}
