@@ -79,11 +79,27 @@ class InternalConfig():
   """ An Internal Configuration Class. 
   """
 
-  # model backend configs
+  # model backend redis
+  REDIS_SERVER = 'redis'
+  REDIS_PORT = 6379
+
+  # api endpoint
+  API_PORT = 8000
+  API_NAME = 'AutoDeploy'
+
+  # Monitor endpoint
+  MONITOR_PORT = 8001
+
+  # Rabbitmq
+
   RETRIES = 3
+  RABBITMQ_PORT = 5672
+  RABBITMQ_HOST = 'rabbitmq'
+  RABBITMQ_QUEUE = 'monitor'
+
 
   # model prediction service
   PREDICT_PORT = 8009
   PREDICT_ENDPOINT = 'model_predict'
-  PREDICT_URL = 'localhost'
+  PREDICT_URL = 'prediction'
   PREDICT_INPUT_DTYPE = 'float32'

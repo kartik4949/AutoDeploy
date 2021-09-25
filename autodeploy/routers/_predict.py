@@ -53,11 +53,11 @@ class PredictRouter(RabbitMQClient, Database):
   '''
 
   def __init__(self, config: Config) -> None:
-    super(PredictRouter, self).__init__(config)
     # user config for configuring model deployment.
     self.user_config = config
     self.internal_config = InternalConfig()
-    self.backend_redis = RedisDB(config)
+    super(PredictRouter, self).__init__(self.internal_config)
+    self.backend_redis = RedisDB(self.internal_config)
     if config.get('dependency', None):
       self.dependencies = LoadDependency(
           config)

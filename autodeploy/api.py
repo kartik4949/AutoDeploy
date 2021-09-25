@@ -80,10 +80,10 @@ class APIDriver(BaseDriverService):
     Setups Prometheus instrumentor
     '''
     # print config
-
     logger.info(self.user_config)
+
     if isinstance(self.user_config.model.model_path, list):
-      logger.info('multi model deployment started...')
+      logger.info('Multi model deployment started...')
 
     # expose prometheus data to /metrics
     Instrumentator().instrument(app).expose(app)
@@ -112,7 +112,7 @@ class APIDriver(BaseDriverService):
     with the app instance and user configuration.
     '''
     # run uvicorn server.
-    uvicorn.run(app, port=self.user_config.model.server.port, host="0.0.0.0")
+    uvicorn.run(app, port=self.internal_config.API_PORT, host="0.0.0.0")
 
 
 def main():

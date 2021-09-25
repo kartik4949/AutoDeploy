@@ -54,15 +54,15 @@ class AutoDeployRouter(RabbitMQClient, Database):
   '''
 
   def __init__(self, config: Config, internal_config: InternalConfig) -> None:
-    super(AutoDeployRouter, self).__init__(config)
     # user config for configuring model deployment.
     self.user_config = config
     self.internal_config = internal_config
+    super(AutoDeployRouter, self).__init__(internal_config)
     self.dependencies = None
 
     # redis backend instance.
 
-    self.backend_redis = RedisDB(self.user_config)
+    self.backend_redis = RedisDB(self.internal_config)
     if config.get('dependency', None):
       self.dependencies = LoadDependency(
           config)
@@ -154,6 +154,8 @@ class AutoDeployRouter(RabbitMQClient, Database):
       nonlocal self
       try:
         _input_array = []
+
+        # TODO: make a class for reading input payload.
         _input_type = self.user_config.model.get('input_type', 'na')
         if _input_type == 'structured':
           _input_array = np.asarray([v for k, v in payload])
@@ -169,6 +171,9 @@ class AutoDeployRouter(RabbitMQClient, Database):
               _input_array.append(utils.url_loader(v))
             else:
               _input_array.append(v)
+        if not _input_array:
+          logger.critical('Could not read input payload.')
+          raise ValueError('Could not read input payload.')
 
         cache = None
         if preprocess_fxn:
@@ -184,10 +189,10 @@ class AutoDeployRouter(RabbitMQClient, Database):
             self._build_predict_url(input_hash_id, _input_array)).json()
 
       except BaseException:
-        logger.error('uncaught exception: %s', traceback.format_exc())
+        logger.critical('Uncaught exception: %s', traceback.format_exc())
         raise ModelException(name='structured_server')
       else:
-        logger.debug('model predict successfull.')
+        logger.debug('Model predict successfull.')
 
       _time_stamp = datetime.now()
       _request_store = {'time_stamp': str(
