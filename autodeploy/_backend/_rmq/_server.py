@@ -8,10 +8,11 @@ logger = AppLogger(__name__).get_logger()
 
 class RabbitMQConsume(HeartBeatMixin):
     def __init__(self, config) -> None:
-        self.host = config.monitor.server.name
-        self.port = config.monitor.server.port
-        self.queue = 'monitor'
-        self.connection = None
+      self.host = config.RABBITMQ_HOST
+      self.port = config.RABBITMQ_PORT
+      self.retries = config.RETRIES
+      self.queue = config.RABBITMQ_QUEUE
+      self.connection = None
 
     def setupRabbitMQ(self, callback):
         try:
