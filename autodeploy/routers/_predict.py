@@ -29,6 +29,8 @@ from security.scheme import oauth2_scheme
 from _backend import Database, RabbitMQClient
 from _backend import RedisDB
 from dependencies import LoadDependency
+from config.config import InternalConfig
+
 
 router = APIRouter()
 
@@ -54,8 +56,8 @@ class PredictRouter(RabbitMQClient, Database):
     super(PredictRouter, self).__init__(config)
     # user config for configuring model deployment.
     self.user_config = config
+    self.internal_config = InternalConfig()
     self.backend_redis = RedisDB(config)
-    self.input_dtype = config.model.input_dtype
     if config.get('dependency', None):
       self.dependencies = LoadDependency(
           config)
@@ -90,7 +92,8 @@ class PredictRouter(RabbitMQClient, Database):
     self.__inference_executor = InfereBuilder(self.user_config, __model)
 
   def read_input_array(self, id, ndim):
-    input = self.backend_redis.pull(id, dtype=self.input_dtype, ndim=int(ndim))
+    input = self.backend_redis.pull(
+        id, dtype=self.internal_config.PREDICT_INPUT_DTYPE, ndim=int(ndim))
     return input
 
   def register_router(self):
