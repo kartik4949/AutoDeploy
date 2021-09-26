@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: ./kompose -f docker/docker-compose.yml convert
+    kompose.version: 1.22.0 (955b78124)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: monitor
+  name: monitor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: monitor
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: ./kompose -f docker/docker-compose.yml convert
+        kompose.version: 1.22.0 (955b78124)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/default: "true"
+        io.kompose.service: monitor
+    spec:
+      containers:
+        - env:
+            - name: CONFIG
+              value: /app/
+          image: monitor:latest
+          name: monitor
+          ports:
+            - containerPort: 8001
+          resources: {}
+      restartPolicy: Always
+status: {}
