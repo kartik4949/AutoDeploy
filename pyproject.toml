@@ -1,5 +1,0 @@
-[tool.commitizen]
-version = "1.0.0"
-version_files = [
-    "autodeploy/__version__.py",
-]
