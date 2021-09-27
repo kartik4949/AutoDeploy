@@ -25,11 +25,9 @@ spec:
         io.kompose.service: monitor
     spec:
       containers:
-        - env:
-            - name: CONFIG
-              value: /app/
-          image: monitor:latest
+        - image: monitor:latest
           name: monitor
+          imagePullPolicy: Never
           ports:
             - containerPort: 8001
           resources: {}

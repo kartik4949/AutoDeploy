@@ -18,5 +18,3 @@ spec:
       targetPort: 5672
   selector:
     io.kompose.service: rabbitmq
-status:
-  loadBalancer: {}

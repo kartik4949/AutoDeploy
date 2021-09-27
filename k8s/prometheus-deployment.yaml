@@ -25,8 +25,9 @@ spec:
         io.kompose.service: prometheus
     spec:
       containers:
-        - image: prom/prometheus:latest
+        - image: prometheus_server:latest
           name: prometheus
+          imagePullPolicy: Never
           ports:
             - containerPort: 9090
           resources: {}

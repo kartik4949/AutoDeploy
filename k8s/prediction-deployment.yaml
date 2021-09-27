@@ -25,11 +25,9 @@ spec:
         io.kompose.service: prediction
     spec:
       containers:
-        - env:
-            - name: CONFIG
-              value: /app/
-          image: prediction:latest
+        - image: prediction:latest
           name: prediction
+          imagePullPolicy: Never
           ports:
             - containerPort: 8009
           resources: {}

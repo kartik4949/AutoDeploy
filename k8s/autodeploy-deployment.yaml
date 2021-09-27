@@ -25,11 +25,9 @@ spec:
         io.kompose.service: autodeploy
     spec:
       containers:
-        - env:
-                - name: PATH
-                  value: /app/configs
-          image: autodeploy:latest
+        - image: autodeploy:latest
           name: autodeploy
+          imagePullPolicy: Never
           ports:
             - containerPort: 8000
           resources:

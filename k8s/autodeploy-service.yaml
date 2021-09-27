@@ -15,5 +15,6 @@ spec:
       targetPort: 8000
   selector:
     io.kompose.service: autodeploy
+  type: LoadBalancer
 status:
   loadBalancer: {}
