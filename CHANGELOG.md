@@ -1,3 +1,13 @@
+## 2.0.0 (2021-09-30)
+
+### Feat
+
+- **kubernetes**: Added k8s configuration files
+
+### Refactor
+
+- **load_test.sh**: removed load_test.sh from root
+
 ## 1.0.0 (2021-09-26)
 
 ### Refactor
