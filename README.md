@@ -42,24 +42,19 @@ Read our [documentation](https://github.com/kartik4949/AutoDeploy/wiki) to know 
 # Feature Support.
 
 - [x] Single Configuration file support.
-- [x] Production Deployment.
+- [x] Enterprise deployment architecture.
 - [x] Logging.
-- [x] Model Monitoring.
-- [x] Custom Metrics.
-- [x] Visual Dashboard.
-- [x] Docker.
-- [x] Docker Compose.
-- [x] Custom Exeption Handler.
-- [x] Pydantic Validators.
+- [x] Grafana Dashboards.
 - [x] Dynamic Database.
 - [x] Data Drift Monitoring.
-- [x] Async API Server.
 - [x] Async Model Monitoring.
-- [x] Production Architecture.
-- [ ] Kubernetes.
-- [ ] Batch Prediction.
-- [ ] Preprocess configuration.
-- [ ] Posprocess configuration.
+- [x] Network traffic monitoring.
+- [x] Realtime traffic simulation.
+- [x] Autoscaling of services. 
+- [x] Kubernetes.
+- [x] Preprocess configuration.
+- [x] Posprocess configuration.
+- [x] Custom metrics configuration. 
 
 ## Prerequisites
 - Install docker 
@@ -69,7 +64,7 @@ Read our [documentation](https://github.com/kartik4949/AutoDeploy/wiki) to know 
 
 - Install docker-compose
   - For Ubuntu (and Linux distros) - [Install docker-compose on Linux](https://docs.docker.com/compose/install/)
-  - For Windows and Mac - 
+  - For Windows and Mac
 
 ## Steps
 - Clone the repo : https://github.com/kartik4949/AutoDeploy
@@ -82,12 +77,23 @@ Read our [documentation](https://github.com/kartik4949/AutoDeploy/wiki) to know 
 - Create the model [dependencies](https://github.com/kartik4949/AutoDeploy/wiki/Setup-Model-Dependencies)
 - Copy the dependencies over to a **model_dependencies** folder
 - Setup [configuration](https://google.com)
-- Build your docker image 
-  - ```bash build.sh -r path/to/model/requirements.txt```
-- Start your containers
-  - ```bash start.sh -f path/to/config/file/in/autodeploy```
+- Steps for Docker deployment
+  - Build your docker image 
+    - ```bash build.sh -r path/to/model/requirements.txt -c path/to/model/config.yaml```
+  - Start your containers
+    - ```bash start.sh -f path/to/config/file/in/autodeploy```
+- Steps for Kubernetes
+  - Build your docker image 
+    - ```bash build.sh -r path/to/model/requirements.txt -c path/to/model/config.yaml```
+  - Apply kubeconfig files 
+    - ``` kubectl -f k8s apply ```
+  - Print all pods
+    - ``` kubectl get pod ```
+  - Port forwarding of api and grafana service
+    - ``` kubectl port-forward autodeploy-pod-name 8000:8000 ```
+    - ``` kubectl port-forward grafana-pod-name 3000:3000 ```
 
-## Example - Iris Model Detection (Sci-Kit Learn).
+## Example (Docker deployment) - Iris Model Detection (Sci-Kit Learn).
 - Clone repo.
 - Dump your iris sklearn model via pickle, lets say `custom_model.pkl`.
 - Make a dir model_dependencies inside AutoDeploy.
@@ -136,12 +142,12 @@ monitor:
                 average_per_day:
                         type: 'info'
 ```
-- run ``` bash build.sh -r model_dependencies/reqs.txt```
+- run ``` bash build.sh -r model_dependencies/reqs.txt -c  configs/iris/config.yaml```
 - run ``` bash start.sh -f configs/iris/config.yaml ```
 
 Tada!! your model is deployed.
 
-## Example - Classification Detection
+## Example (Docker deployment) - Classification Detection
 
 - Clone repo.
 - Convert the model to Onnx file `model.onnx`.
@@ -255,7 +261,7 @@ def calculate_brightness(image):
   return 1.0 if brightness == 255 else brightness / scale
 
 ```
-- run ``` bash build.sh -r model_dependencies/reqs.txt ```
+- run ``` bash build.sh -r model_dependencies/reqs.txt -c configs/classification/config.yaml ```
 - run ``` bash start.sh -f configs/classification/config.yaml ```
 - To monitor the custom metric `image_brightness`: goto grafana and add panel to the dashboard with image_brightness as metric.
 
