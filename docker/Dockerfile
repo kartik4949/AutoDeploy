@@ -1,5 +1,6 @@
 FROM ubuntu:20.04
 ARG MODEL_REQ
+ARG MODEL_CONFIG
 RUN apt-get update \
     && apt-get install python3 python3-pip -y \
     && apt-get clean \
@@ -34,6 +35,8 @@ ENV LANGUAGE=C.UTF-8
 EXPOSE 8000
 COPY ./ app
 WORKDIR /app
+
+ENV CONFIG=/app/$MODEL_CONFIG
 
 RUN chmod +x /app/bin/autodeploy_start.sh
 
