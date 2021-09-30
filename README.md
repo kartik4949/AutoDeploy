@@ -16,6 +16,7 @@
 
 ## What is AutoDeploy?<img src="https://c.tenor.com/jfj-uQd1eLUAAAAi/fire-space.gif" width="40" height="40" />
 
+<img src="https://github.com/kartik4949/AutoDeploy/blob/dev/assests/src.png" alt="Autodeploy src"/>
 A one liner : 
 For the DevOps nerds, AutoDeploy allows configuration based MLOps.
 
